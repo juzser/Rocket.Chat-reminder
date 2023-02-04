@@ -1,0 +1,48 @@
+{
+    "id": "f3ff06c9-fa92-44eb-be38-61cafb7b7566",
+    "version": "1.0.0",
+    "requiredApiVersion": "^1.36.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "juzser",
+        "homepage": "https://github.com/juzser",
+        "support": "https://github.com/juzser/Rocket.Chat-reminder"
+    },
+    "name": "oe-reminder",
+    "nameSlug": "oe-reminder",
+    "classFile": "OeReminderApp.ts",
+    "description": "Advanced reminder app",
+    "permissions": [
+        {
+            "name": "ui.interact"
+        },
+        {
+            "name": "slashcommand"
+        },
+        {
+            "name": "persistence"
+        },
+        {
+            "name": "message.read"
+        },
+        {
+            "name": "message.write"
+        },
+        {
+            "name": "scheduler"
+        },
+        {
+            "name": "room.read"
+        },
+        {
+            "name": "room.write"
+        },
+        {
+            "name": "user.read"
+        },
+        {
+            "name": "ui.registerButtons"
+        }
+    ],
+    "implements": []
+}

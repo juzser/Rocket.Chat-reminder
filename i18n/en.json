@@ -1,0 +1,10 @@
+{
+    "bot_username": "Reminder Bot",
+    "bot_username_desc": "The name of the bot that will be used to send reminders.",
+    "default_channel": "Default Channel",
+    "default_channel_desc": "The channel to get member list and use as default channel option.",
+    "enable_remindto_channel": "Enable create reminder to channel",
+    "enable_remindto_channel_desc": "Enable the ability to send remind to channels.",
+    "max_users_remind": "Max other users to remind",
+    "max_users_remind_desc": "0 to disable. The maximum number of other users to remind in a single reminder."
+}
