@@ -5,7 +5,7 @@ import { BlockBuilder, ButtonStyle } from '@rocket.chat/apps-engine/definition/u
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
-import { IJob, JobTargetType } from '../interfaces/IJob';
+import { IJob, JobTargetType, JobType } from '../interfaces/IJob';
 import { lang } from '../lang/index';
 import { AppConfig } from '../lib/config';
 import { sendMessage } from '../lib/helpers';
@@ -32,12 +32,15 @@ export async function ReminderMessage({ app, owner, jobData, modify, room }: {
         text: jobData.message,
     };
 
-    if (jobData.targetType === JobTargetType.SELF) {
-
-    }
-
     // Send message to activity room
-    const msg = await sendMessage({ app, modify, room, message: caption, attachments: [attachment], group: true });
+    const msg = await sendMessage({
+        app,
+        modify,
+        room,
+        message: caption,
+        attachments: [attachment],
+        group: true,
+    });
 
     return msg;
 }

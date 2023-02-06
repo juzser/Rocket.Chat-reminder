@@ -5,6 +5,8 @@ import { BlockBuilder, IOptionObject, TextObjectType } from '@rocket.chat/apps-e
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as appClass } from '../../OeReminderApp';
+import { JobType } from '../interfaces/IJob';
+import { lang } from '../lang/index';
 import { AppConfig } from './config';
 
 /**
@@ -278,4 +280,99 @@ export function getWhenDateTime({ whenDate, whenTime, offset }: {
     );
 
     return whenDateTime;
+}
+
+/**
+ * Get week day name from lang
+ */
+export function getWeekDayName(date: string): string {
+    const ts = convertDateToTimestamp(date);
+    const day = new Date(ts).getDay();
+
+    switch(day) {
+        case 0:
+            return lang.date.sunday;
+        case 1:
+            return lang.date.monday;
+        case 2:
+            return lang.date.tuesday;
+        case 3:
+            return lang.date.wednesday;
+        case 4:
+            return lang.date.thursday;
+        case 5:
+            return lang.date.friday;
+        case 6:
+            return lang.date.saturday;
+    }
+
+    return '';
+}
+
+export function getNextRunAt({ type, whenDate, whenTime, offset }: {
+    type: JobType;
+    whenDate: string;
+    whenTime: string;
+    offset: number; // user timezone offset
+}): Date {
+    // Calculate the next run base on the last run
+    // But the time should be correct as whenDate & whenTime
+    const nextRunAt = getWhenDateTime({ whenDate, whenTime, offset });
+    const currentDate = new Date();
+
+    nextRunAt.setMonth(currentDate.getMonth());
+    nextRunAt.setFullYear(currentDate.getFullYear());
+
+    const currentHoursMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
+    const originHoursMinutes = nextRunAt.getHours() * 60 + nextRunAt.getMinutes();
+
+    // Get next run base on the current time
+    if (type === JobType.DAILY || type === JobType.WEEKDAYS) {
+        // Compare hours & minutes with original hours & minutes
+        // If current hh:mm greater than original, then next run is tomorrow
+        // Otherwise, next run is today
+        nextRunAt.setDate(currentHoursMinutes > originHoursMinutes
+            ? currentDate.getDate() + 1
+            : currentDate.getDate()
+        );
+
+        if (type === JobType.WEEKDAYS) {
+            // Skip weekend
+            while (nextRunAt.getDay() === 0 || nextRunAt.getDay() === 6) {
+                nextRunAt.setDate(nextRunAt.getDate() + 1);
+            }
+        }
+
+        return nextRunAt;
+    }
+
+    if (type === JobType.WEEKLY) {
+        // Compare day minutes with origin day minutes in week
+        // If current is greater than origin, then next run is the origin day of next week
+        // Otherwise, next run is the origin day of this week
+        const current = currentDate.getDay() * 24 * 60 + currentHoursMinutes;
+        const origin = nextRunAt.getDay() * 24 * 60 + originHoursMinutes;
+
+        const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
+
+        nextRunAt.setDate(current > origin ? weekDay + 7 : weekDay);
+
+        return nextRunAt;
+    }
+
+    if (type === JobType.MONTHLY) {
+        // Compare date minutes with origin date minutes in month
+        // If current is greater than origin, then next run is the origin date of next month
+        // Otherwise, next run is the origin date of this month
+        const current = currentDate.getDate() * 24 * 60 + currentHoursMinutes;
+        const origin = nextRunAt.getDate() * 24 * 60 + originHoursMinutes;
+
+        if (current > origin) {
+            nextRunAt.setMonth(currentDate.getMonth() + 1);
+        }
+
+        return nextRunAt;
+    }
+
+    return nextRunAt;
 }

@@ -1,10 +1,14 @@
 import { IModify, IRead, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUIKitModalResponse, UIKitBlockInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
+import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
-import { JobTargetType } from '../interfaces/IJob';
+import { IJob, JobStatus, JobTargetType } from '../interfaces/IJob';
 import { reminderCreate } from '../modals/reminderCreate';
+import { reminderList } from '../modals/reminderList';
+import { getReminders } from '../services/reminder';
 
 export class ExecuteBlockAction {
     constructor(
@@ -16,7 +20,7 @@ export class ExecuteBlockAction {
 
     public async run(context: UIKitBlockInteractionContext): Promise<IUIKitModalResponse | Record<string, any>> {
         const data = context.getInteractionData();
-        const { user, actionId, value, container } = data;
+        const { user, actionId, value, container, blockId } = data;
 
         let roomId = this.app.defaultChannel.id;
         if (container.id.startsWith('modal-reminder-create')) {
@@ -24,6 +28,8 @@ export class ExecuteBlockAction {
         }
 
         const room = await this.read.getRoomReader().getById(roomId);
+
+        this.app.getLogger().info(data);
 
         switch (actionId) {
             case 'targetType': {
@@ -36,6 +42,22 @@ export class ExecuteBlockAction {
                 });
                 return context.getInteractionResponder().updateModalViewResponse(modal);
             }
+
+            case 'reminder-list-view': {
+                const modal = await this.buildListModal({ actionValue: value as string, user, context });
+                return context.getInteractionResponder().updateModalViewResponse(modal);
+            }
+        }
+
+        // Cancel a job
+        if (actionId.startsWith('job-cancel')) {
+            const id = actionId.split('--')[1];
+            this.app.reminder.cancel({ id, read: this.read, persis: this.persis, modify: this.modify });
+
+            const [block, status, ...rest] = blockId.split('--');
+
+            const modal = await this.buildListModal({ actionValue: status, user, context });
+            return context.getInteractionResponder().updateModalViewResponse(modal);
         }
 
         return {
@@ -45,5 +67,32 @@ export class ExecuteBlockAction {
             value: data.value,
             triggerId: data.triggerId,
         };
+    }
+
+    private async buildListModal({ actionValue, user, context }: {
+        actionValue: string;
+        user: IUser;
+        context: UIKitBlockInteractionContext;
+    }): Promise<IUIKitModalViewParam> {
+        let jobs: IJob[] = [];
+        let pausedJobs: IJob[] = [];
+
+        if (actionValue === 'active') {
+            jobs = await this.app.jobsCache.getOnUser(JobStatus.ACTIVE, user.id);
+            pausedJobs = await this.app.jobsCache.getOnUser(JobStatus.PAUSED, user.id);
+        }
+
+        if (actionValue === 'finished') {
+            jobs = await this.app.jobsCache.getOnUser(JobStatus.FINISHED, user.id);
+        }
+
+        return await reminderList({
+            app: this.app,
+            jobList: jobs,
+            pausedJobs,
+            user,
+            modify: this.modify,
+            status: actionValue as 'active' | 'finished',
+        });
     }
 }

@@ -8,8 +8,8 @@ export enum JobType {
 
 export enum JobStatus {
     ACTIVE = 'active',
-    FINISHED = 'finished',
-    CANCELLED = 'cancelled',
+    FINISHED = 'finished', // completed
+    CANCELED = 'canceled',
     PAUSED = 'paused',
 }
 

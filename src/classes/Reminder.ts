@@ -6,14 +6,14 @@ import { OeReminderApp as App } from '../../OeReminderApp';
 import { IJob, IJobFormData, JobStatus, JobTargetType, JobType } from '../interfaces/IJob';
 import { lang } from '../lang/index';
 import { AppConfig } from '../lib/config';
-import { getDirect, getWhenDateTime, notifyUser } from '../lib/helpers';
+import { getDirect, getWhenDateTime, notifyUser, getNextRunAt } from '../lib/helpers';
 import { ReminderMessage } from '../messages/reminder';
 import { getReminders, setReminder } from '../services/reminder';
 
 export class Reminder {
     constructor(private readonly app: App) {}
 
-    public async submit({ formData, room, read, modify, persis, user }: {
+    public async create({ formData, room, read, modify, persis, user }: {
         formData: IJobFormData,
         room: IRoom,
         read: IRead;
@@ -68,6 +68,7 @@ export class Reminder {
         const jobId = await modify.getScheduler().scheduleOnce({
             id: AppConfig.jobKey,
             when,
+            data: { id: `${user.username}-${createdAt}` },
         });
 
         if (!jobId) {
@@ -98,6 +99,9 @@ export class Reminder {
         }
         await setReminder({ persis, data: jobData });
 
+        // Purge cache of jobs
+        this.app.jobsCache.purge(user.id);
+
         // Notify user, created successfully
         await notifyUser({
             app: this.app,
@@ -108,6 +112,26 @@ export class Reminder {
         });
     }
 
+    public async cancel({ id, read, modify, persis }: {
+        id: string,
+        read: IRead,
+        modify: IModify,
+        persis: IPersistence,
+    }) {
+        // Get job data
+        const jobs = await getReminders({ read, id });
+        const jobData = jobs && jobs[0];
+
+        // Cancel job
+        await modify.getScheduler().cancelJob(jobData.jobId);
+
+        // Update job data & cache
+        await setReminder({ persis, data: { ...jobData, status: JobStatus.CANCELED } });
+        this.app.jobsCache.setOnUserByJobId(jobData.status, jobData.user, id, { status: JobStatus.CANCELED });
+
+        return true;
+    }
+
     public async processor({ job, read, modify, persis }: {
         job: IJobContext,
         read: IRead,
@@ -115,7 +139,7 @@ export class Reminder {
         persis: IPersistence,
     }) {
         // Get job data
-        const jobs = (await getReminders({ persis, jobId: job.jobId }));
+        const jobs = await getReminders({ read, id: job.id });
         const jobData = jobs && jobs[0];
 
         // Check if job is active
@@ -126,11 +150,15 @@ export class Reminder {
         // Check if user is active or removed
         const user = await read.getUserReader().getById(jobData.user);
         if (!user.isEnabled) {
-            // Update job data
+            // Update job data & remove user from cache
             await setReminder({ persis, data: { ...jobData, status: JobStatus.FINISHED } });
+            this.app.jobsCache.purge(jobData.user);
             return;
         }
 
+        /**
+         * Prepare data to send message
+         */
         // Check target type & send to target
         const room: IRoom[] = [];
 
@@ -170,7 +198,9 @@ export class Reminder {
             return;
         }
 
-        // Send message
+        /**
+         * Trigger the job!
+         */
         for (const r of room) {
             await ReminderMessage({ app: this.app, owner: user, jobData, modify, room: r  });
         }
@@ -179,11 +209,10 @@ export class Reminder {
 
         // Trigger repeat if the job is repeatable
         if (jobData.type !== JobType.ONCE) {
-            const nextRunAt = this.getNextRunAt({
+            const nextRunAt = getNextRunAt({
                 type: jobData.type,
                 whenDate: jobData.whenDate,
                 whenTime: jobData.whenTime,
-                lastRunAt: jobData.lastRunAt,
                 offset: user.utcOffset,
             });
 
@@ -191,6 +220,7 @@ export class Reminder {
                 const nextJobId = await modify.getScheduler().scheduleOnce({
                     id: AppConfig.jobKey,
                     when: nextRunAt.toISOString(),
+                    data: { id: `${user.username}-${jobData.createdAt}` },
                 });
 
                 if (nextJobId) {
@@ -199,8 +229,15 @@ export class Reminder {
                 }
             }
         } else {
-            // ONCE - Update job status
+            // ONCE - Update job status & cache
             newJobData.status = JobStatus.FINISHED;
+
+            this.app.jobsCache.setOnUserByJobId(
+                jobData.status,
+                jobData.user,
+                jobData.id,
+                { status: JobStatus.FINISHED },
+            )
         }
 
         // Update job data
@@ -210,52 +247,46 @@ export class Reminder {
         });
     }
 
-    private getNextRunAt({ type, whenDate, whenTime, lastRunAt, offset }: {
-        type: JobType;
-        whenDate: string;
-        whenTime: string;
-        lastRunAt?: number;
-        offset: number; // user timezone offset
-    }): Date {
-        // Calculate the next run base on the last run
-        // But the time should be correct as whenDate & whenTime
-        const whenDateTime = getWhenDateTime({ whenDate, whenTime, offset });
-        const nextRunAt = new Date(lastRunAt || whenDateTime.getTime());
+    public async migrate({ read, modify, persis }: {
+        read: IRead,
+        modify: IModify,
+        persis: IPersistence,
+    }) {
+        const allJobs = await getReminders({ read });
+        const jobs = allJobs.filter((j) => j.status === JobStatus.ACTIVE);
 
-        if (type === JobType.DAILY) {
-            // Next day from last run with trigger time from whenDateTime
-            nextRunAt.setDate(nextRunAt.getDate() + 1);
-            nextRunAt.setHours(whenDateTime.getHours());
-            nextRunAt.setMinutes(whenDateTime.getMinutes());
-        }
+        for (const job of jobs) {
+            const newJobData = { ...job };
+            const user = await read.getUserReader().getById(job.user);
+            if (!user) {
+                continue;
+            }
 
-        if (type === JobType.WEEKLY) {
-            // Next week from last run with trigger time from whenDateTime
-            nextRunAt.setDate(nextRunAt.getDate() + 7);
-            nextRunAt.setHours(whenDateTime.getHours());
-            nextRunAt.setMinutes(whenDateTime.getMinutes());
-        }
+            const nextRunAt = getNextRunAt({
+                type: job.type,
+                whenDate: job.whenDate,
+                whenTime: job.whenTime,
+                offset: user.utcOffset,
+            });
 
-        if (type === JobType.MONTHLY) {
-            // Next month from last run with trigger time from whenDateTime
-            nextRunAt.setMonth(nextRunAt.getMonth() + 1);
-            nextRunAt.setHours(whenDateTime.getHours());
-            nextRunAt.setMinutes(whenDateTime.getMinutes());
-        }
+            if (nextRunAt) {
+                const nextJobId = await modify.getScheduler().scheduleOnce({
+                    id: AppConfig.jobKey,
+                    when: nextRunAt.toISOString(),
+                    data: { id: `${user.username}-${job.createdAt}` },
+                });
 
-        if (type === JobType.WEEKDAYS) {
-            // Next weekday from last run with trigger time from whenDateTime
-            nextRunAt.setDate(nextRunAt.getDate() + 1);
-            nextRunAt.setHours(whenDateTime.getHours());
-            nextRunAt.setMinutes(whenDateTime.getMinutes());
+                if (nextJobId) {
+                    newJobData.jobId = nextJobId;
+                    newJobData.nextRunAt = nextRunAt.getTime();
+                }
 
-            // Skip weekend
-            while (nextRunAt.getDay() === 0 || nextRunAt.getDay() === 6) {
-                nextRunAt.setDate(nextRunAt.getDate() + 1);
+                await setReminder({
+                    persis,
+                    data: newJobData,
+                });
             }
         }
-
-        return nextRunAt;
     }
 
     private formValidation({ formData, whenUTCTimestamp }: {
@@ -286,10 +317,8 @@ export class Reminder {
         }
 
         // Check if the date time is in the past
-
-
         if (whenUTCTimestamp < currentTime) {
-            return { whenDate: 'Cannot remind at past' };
+            return { whenTime: 'Cannot remind at past' };
         }
 
         // Check if message is empty

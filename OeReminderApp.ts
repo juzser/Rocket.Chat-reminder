@@ -23,6 +23,7 @@ import { UIKitBlockInteractionContext, UIKitViewSubmitInteractionContext } from 
 import { ExecuteBlockAction } from './src/classes/ExecuteBlockAction';
 import { ExecuteViewSubmit } from './src/classes/ExecuteViewSubmit';
 import { AppConfig } from './src/lib/config';
+import { JobsCache } from './src/services/cache-jobs';
 
 export class OeReminderApp extends App {
     public botUsername: string;
@@ -40,6 +41,11 @@ export class OeReminderApp extends App {
      * Members cache
      */
     public membersCache: MembersCache;
+
+    /**
+     * Jobs cache
+     */
+    public jobsCache: JobsCache;
 
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
@@ -73,6 +79,7 @@ export class OeReminderApp extends App {
 
     public async onEnable(environment: IEnvironmentRead, configurationModify: IConfigurationModify): Promise<boolean> {
         this.membersCache = new MembersCache(this);
+        this.jobsCache = new JobsCache(this);
         this.reminder = new Reminder(this);
 
         // Get bot user by bot username
@@ -87,9 +94,6 @@ export class OeReminderApp extends App {
 
         this.enableRemindChannel = await environment.getSettings().getValueById('enable_remindto_channel');
         this.maxUserRemind = +(await environment.getSettings().getValueById('max_users_remind')) || 0;
-
-        // Get members after channel defined
-        await this.membersCache.getMembers();
 
         return true;
     }

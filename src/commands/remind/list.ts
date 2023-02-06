@@ -2,7 +2,9 @@ import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definitio
 import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 
 import { OeReminderApp as AppClass } from '../../../OeReminderApp';
-import { notifyUser } from '../../lib/helpers';
+import { JobStatus } from '../../interfaces/IJob';
+import { reminderList } from '../../modals/reminderList';
+import { getReminders } from '../../services/reminder';
 
 // Open modal to request time off
 export async function ListCommand({ app, context, read, persis, modify, params }: {
@@ -13,5 +15,22 @@ export async function ListCommand({ app, context, read, persis, modify, params }
     modify: IModify
     params: string[];
 }): Promise<void> {
-    // Get from db
+    // Get active job data
+    const activeJobs = await app.jobsCache.getOnUser(JobStatus.ACTIVE, context.getSender().id);
+    const pausedJobs = await app.jobsCache.getOnUser(JobStatus.PAUSED, context.getSender().id);
+
+    const triggerId = context.getTriggerId();
+
+    if (triggerId) {
+        const modal = await reminderList({
+            app,
+            jobList: activeJobs,
+            pausedJobs,
+            user: context.getSender(),
+            modify,
+            status: 'active',
+        });
+
+        await modify.getUiController().openModalView(modal, { triggerId }, context.getSender());
+    }
 }

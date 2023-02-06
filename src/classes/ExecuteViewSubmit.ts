@@ -28,7 +28,7 @@ export class ExecuteViewSubmit {
             const { reminderData } = state as Record<'reminderData', IJobFormData>;
 
             try {
-                await this.app.reminder.submit({
+                await this.app.reminder.create({
                     formData: reminderData,
                     room: room as IRoom,
                     user: data.user,

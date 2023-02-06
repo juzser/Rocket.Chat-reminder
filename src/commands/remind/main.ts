@@ -5,6 +5,7 @@ import { OeReminderApp as AppClass } from '../../../OeReminderApp';
 import { CancelAllCommand, CancelCommand } from './cancel';
 import { CreateCommand } from './create';
 import { ListCommand } from './list';
+import { MigrateCommand } from './migrate';
 
 export class ReminderCommand implements ISlashCommand {
     public command = 'remind';
@@ -17,6 +18,7 @@ export class ReminderCommand implements ISlashCommand {
         Cancel: 'cancel',
         CancelAll: 'cancel-all',
         List: 'list',
+        Migrate: 'migrate',
     };
 
     constructor(private readonly app: AppClass) {}
@@ -39,6 +41,10 @@ export class ReminderCommand implements ISlashCommand {
 
             case this.CommandEnum.List:
                 await ListCommand({ app: this.app, context, read, persis, modify, params });
+                break;
+
+            case this.CommandEnum.Migrate:
+                await MigrateCommand({ app: this.app, context, read, persis, modify });
                 break;
 
             default:

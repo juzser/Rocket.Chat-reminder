@@ -1,4 +1,4 @@
-import { IPersistence } from "@rocket.chat/apps-engine/definition/accessors";
+import { IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { IJob, JobStatus, JobType } from "../interfaces/IJob";
 
@@ -11,8 +11,8 @@ export async function setReminder({ persis, data }: {
     const associations: RocketChatAssociationRecord[] = [
         new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, REMINDER_KEY),
         new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `reminder-type-${data.type}`),
-        new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `reminder-status-${data.status}`),
-        new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${data.jobId}`),
+        // new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `reminder-status-${data.status}`),
+        new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${data.id}`),
         new RocketChatAssociationRecord(RocketChatAssociationModel.USER, data.user),
     ];
 
@@ -26,13 +26,13 @@ export async function setReminder({ persis, data }: {
     return true;
 }
 
-export async function removeReminder({ persis, jobId }: {
+export async function removeReminder({ persis, id }: {
     persis: IPersistence,
-    jobId: string,
+    id: string,
 }): Promise<boolean> {
     const associations: RocketChatAssociationRecord[] = [
         new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, REMINDER_KEY),
-        new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${jobId}`),
+        new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${id}`),
     ];
 
     try {
@@ -45,12 +45,11 @@ export async function removeReminder({ persis, jobId }: {
     return true;
 }
 
-export async function getReminders({ persis, type, status, user, jobId }: {
-    persis: IPersistence,
+export async function getReminders({ read, type, user, id }: {
+    read: IRead,
     type?: JobType,
-    status?: JobStatus,
     user?: string,
-    jobId?: string,
+    id?: string,
 }): Promise<IJob[]> {
     const associations: RocketChatAssociationRecord[] = [
         new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, REMINDER_KEY),
@@ -60,20 +59,16 @@ export async function getReminders({ persis, type, status, user, jobId }: {
         associations.push(new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `reminder-type-${type}`));
     }
 
-    if (status) {
-        associations.push(new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `reminder-status-${status}`));
-    }
-
     if (user) {
         associations.push(new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user));
     }
 
-    if (jobId) {
-        associations.push(new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${jobId}`));
+    if (id) {
+        associations.push(new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `job-${id}`));
     }
 
     try {
-        const result = await persis.removeByAssociations(associations);
+        const result = await read.getPersistenceReader().readByAssociations(associations);
         return result as IJob[];
     } catch (err) {
         console.warn(err);
