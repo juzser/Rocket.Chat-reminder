@@ -4,8 +4,7 @@ import { IJob, JobStatus } from "../interfaces/IJob";
 import { getReminders } from "./reminder";
 
 type IJobsCache = {
-    [key in JobStatus]?: IJob[];
-} & {
+    jobs: IJob[];
     valid: number;
 };
 
@@ -16,11 +15,11 @@ export class JobsCache {
     constructor(private readonly app: AppClass) {}
 
     public async getOnUser(status: JobStatus, userId: string): Promise<IJob[]> {
-        if (this._jobs[userId] && this._jobs[userId][status] && this.isValid(this._jobs[userId].valid)) {
+        if (this._jobs[userId] && this._jobs[userId].jobs && this.isValid(this._jobs[userId].valid)) {
             // Filter again to pick current status only
-            this._jobs[userId][status] = this._jobs[userId][status]?.filter((j) => j.status === status);
+            const jobs = this._jobs[userId].jobs.filter((j) => j.status === status);
 
-            return this._jobs[userId][status] as IJob[];
+            return jobs as IJob[];
         }
 
         const allJobs = await getReminders({
@@ -35,29 +34,29 @@ export class JobsCache {
         const validTime = Date.now() + this._expirationTime;
 
         this._jobs[userId] = {
-            ...this._jobs[userId],
-            [status]: jobs,
+            jobs: allJobs,
             valid: validTime,
         };
 
         return jobs;
     }
 
-    public setOnUser(status: JobStatus, userId: string, jobs: IJob[]): void {
+    public setOnUser(userId: string, jobs: IJob[]): void {
         this._jobs[userId] = {
             ...this._jobs[userId],
-            [status]: jobs,
+            jobs,
         };
     }
 
-    public setOnUserByJobId(status: JobStatus, userId: string, id: string, newData: Partial<IJob>): void {
-        const jobs = this._jobs[userId][status];
+    public setOnUserByJobId(userId: string, id: string, newData: Partial<IJob>): void {
+        const jobs = this._jobs[userId] && this._jobs[userId].jobs;
 
         if (jobs) {
             const index = jobs.findIndex((j) => j.id === id);
 
             if (index >= 0) {
                 jobs[index] = { ...jobs[index], ...newData };
+                this._jobs[userId].jobs = jobs;
             }
         }
     }

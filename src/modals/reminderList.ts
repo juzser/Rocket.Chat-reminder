@@ -4,7 +4,7 @@ import { BlockBuilder, BlockElementType, ButtonStyle } from '@rocket.chat/apps-e
 import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
-import { lang } from '../lang/index';
+import { Lang } from '../lang/index';
 import { IJob, JobStatus, JobTargetType, JobType } from '../interfaces/IJob';
 import { getWeekDayName } from '../lib/helpers';
 
@@ -14,12 +14,14 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
     pausedJobs?: IJob[];
     user: IUser;
     modify: IModify;
-    status?: 'active' | 'finished';
+    status?: 'active' | 'finished' | 'paused';
 }): Promise<IUIKitModalViewParam> {
+    const { lang } = new Lang(user.settings?.preferences?.language);
+
     const block = modify.getCreator().getBlockBuilder();
 
     let caption = '';
-    if (!status || status === 'active') {
+    if (!status || status === 'active' || status === 'paused') {
         caption = lang.reminder.listModal.caption_active(jobList.length, pausedJobs && pausedJobs.length || 0);
     } else {
         caption = lang.reminder.listModal.caption_finished(jobList.length);
@@ -31,8 +33,8 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
             accessory: {
                 type: BlockElementType.BUTTON,
                 actionId: 'reminder-list-view',
-                text: block.newPlainTextObject(status === 'active' ? lang.reminder.listModal.view_finished : lang.reminder.listModal.view_active),
-                value: status === 'active' ? 'finished' : 'active',
+                text: block.newPlainTextObject(status !== 'finished' ? lang.reminder.listModal.view_finished : lang.reminder.listModal.view_active),
+                value: status !== 'finished' ? 'finished' : 'active',
             }
         })
         .addDividerBlock();
@@ -44,10 +46,8 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
         });
 
         pausedJobs.forEach((job, index) => {
-            generateJobBlock({ block, job, index: index + 1, timeOffset: user.utcOffset });
+            generateJobBlock({ lang, block, job, timeOffset: user.utcOffset });
         });
-
-        block.addDividerBlock();
     }
 
     // Active jobs
@@ -63,7 +63,7 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
             ),
         });
         jobList.forEach((job, index) => {
-            generateJobBlock({ block, job, index: index + 1, timeOffset: user.utcOffset });
+            generateJobBlock({ lang, block, job, timeOffset: user.utcOffset });
         });
     }
 
@@ -77,7 +77,12 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
     };
 }
 
-function generateJobBlock({ block, job, index, timeOffset }: { block: BlockBuilder; job: IJob; index: number, timeOffset: number }) {
+function generateJobBlock({ lang, block, job, timeOffset }: {
+    lang: Record<string, any>;
+    block: BlockBuilder;
+    job: IJob;
+    timeOffset: number
+}) {
     const [day, month, year] = job.whenDate.split('/');
     const [hour, minute] = job.whenTime.split(':');
 

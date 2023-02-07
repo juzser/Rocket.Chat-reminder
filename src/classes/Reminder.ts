@@ -1,10 +1,11 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { IJobContext } from '@rocket.chat/apps-engine/definition/scheduler';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { OeReminderApp as App } from '../../OeReminderApp';
 import { IJob, IJobFormData, JobStatus, JobTargetType, JobType } from '../interfaces/IJob';
-import { lang } from '../lang/index';
+import { Lang } from '../lang/index';
 import { AppConfig } from '../lib/config';
 import { getDirect, getWhenDateTime, notifyUser, getNextRunAt } from '../lib/helpers';
 import { ReminderMessage } from '../messages/reminder';
@@ -13,14 +14,17 @@ import { getReminders, setReminder } from '../services/reminder';
 export class Reminder {
     constructor(private readonly app: App) {}
 
-    public async create({ formData, room, read, modify, persis, user }: {
+    public async create({ formData, room, read, modify, persis, user, refMsgId }: {
         formData: IJobFormData,
         room: IRoom,
         read: IRead;
         modify: IModify;
         persis: IPersistence,
         user: IUser,
+        refMsgId?: string,
     }) {
+        const { lang } = new Lang(user.settings?.preferences?.language);
+
         const whenDateTime = getWhenDateTime({ whenDate: formData.whenDate, whenTime: formData.whenTime, offset: user.utcOffset });
         const triggerTime = whenDateTime.getTime();
 
@@ -93,6 +97,7 @@ export class Reminder {
             status: JobStatus.ACTIVE,
             whenDate: formData.whenDate,
             whenTime: formData.whenTime,
+            referenceMessageId: refMsgId,
             ...formData.targetType && { targetType: formData.targetType },
             ...formData.targetType === JobTargetType.USER && { target: formData.targetUsers },
             ...formData.targetType === JobTargetType.CHANNEL && { target: formData.targetChannel },
@@ -127,7 +132,59 @@ export class Reminder {
 
         // Update job data & cache
         await setReminder({ persis, data: { ...jobData, status: JobStatus.CANCELED } });
-        this.app.jobsCache.setOnUserByJobId(jobData.status, jobData.user, id, { status: JobStatus.CANCELED });
+        this.app.jobsCache.setOnUserByJobId(jobData.user, id, { status: JobStatus.CANCELED });
+
+        return true;
+    }
+
+    public async pause({ id, read, modify, persis }: {
+        id: string,
+        read: IRead,
+        modify: IModify,
+        persis: IPersistence,
+    }) {
+        // Get job data
+        const jobs = await getReminders({ read, id });
+        const jobData = jobs && jobs[0];
+
+        // Cancel job
+        await modify.getScheduler().cancelJob(jobData.jobId);
+
+        // Update job data & cache
+        await setReminder({ persis, data: { ...jobData, status: JobStatus.PAUSED } });
+        this.app.jobsCache.setOnUserByJobId(jobData.user, id, { status: JobStatus.PAUSED });
+
+        return true;
+    }
+
+    public async resume({ id, read, modify, persis }: {
+        id: string,
+        read: IRead,
+        modify: IModify,
+        persis: IPersistence,
+    }) {
+        // Get job data
+        const jobs = await getReminders({ read, id });
+        const jobData = jobs && jobs[0];
+
+        // Convert time to agenda format
+        const user = await read.getUserReader().getById(jobData.user);
+        const when = getNextRunAt({ type: jobData.type, whenDate: jobData.whenDate, whenTime: jobData.whenTime, offset: user.utcOffset });
+
+        // Create job
+        const jobId = await modify.getScheduler().scheduleOnce({
+            id: AppConfig.jobKey,
+            when,
+            data: { id: jobData.id },
+        });
+
+        if (!jobId) {
+            return false;
+        }
+
+        // Update job data & cache
+        await setReminder({ persis, data: { ...jobData, jobId, status: JobStatus.ACTIVE } });
+        this.app.jobsCache.setOnUserByJobId(jobData.user, id, { jobId, status: JobStatus.ACTIVE });
 
         return true;
     }
@@ -156,6 +213,18 @@ export class Reminder {
             return;
         }
 
+        // Check if reference message is deleted
+        let msg: IMessage | undefined = undefined;
+        if (jobData.referenceMessageId) {
+            msg = await read.getMessageReader().getById(jobData.referenceMessageId);
+            if (!msg) {
+                // Update job data as canceled
+                await setReminder({ persis, data: { ...jobData, status: JobStatus.CANCELED } });
+                this.app.jobsCache.setOnUserByJobId(jobData.user, jobData.id, { status: JobStatus.CANCELED });
+                return;
+            }
+        }
+
         /**
          * Prepare data to send message
          */
@@ -172,7 +241,7 @@ export class Reminder {
         if (jobData.targetType === JobTargetType.USER && jobData.target) {
             if (Array.isArray(jobData.target) && jobData.target.length) {
                 for (const t of jobData.target) {
-                    const tUser = await read.getUserReader().getById(t);
+                    const tUser = await read.getUserReader().getByUsername(t);
                     if (tUser) {
                         const directRoom = await getDirect(this.app, tUser.username, read, modify);
                         if (directRoom) {
@@ -194,7 +263,9 @@ export class Reminder {
         }
 
         if (!room.length) {
-            await notifyUser({ app: this.app, message: `Failed to send reminder ${jobData.id}`, room: this.app.defaultChannel, user, modify })
+            await notifyUser({ app: this.app, message: `Failed to send reminder ${jobData.id}`, room: this.app.defaultChannel, user, modify });
+            await setReminder({ persis, data: { ...jobData, status: JobStatus.CANCELED } });
+            this.app.jobsCache.setOnUserByJobId(jobData.user, jobData.id, { status: JobStatus.CANCELED });
             return;
         }
 
@@ -202,7 +273,15 @@ export class Reminder {
          * Trigger the job!
          */
         for (const r of room) {
-            await ReminderMessage({ app: this.app, owner: user, jobData, modify, room: r  });
+            await ReminderMessage({
+                app: this.app,
+                owner: user,
+                jobData,
+                read,
+                modify,
+                room: r,
+                refMsg: msg,
+            });
         }
 
         const newJobData = { ...jobData, lastRunAt: new Date().getTime() };
@@ -233,7 +312,6 @@ export class Reminder {
             newJobData.status = JobStatus.FINISHED;
 
             this.app.jobsCache.setOnUserByJobId(
-                jobData.status,
                 jobData.user,
                 jobData.id,
                 { status: JobStatus.FINISHED },
@@ -245,48 +323,6 @@ export class Reminder {
             persis,
             data: newJobData,
         });
-    }
-
-    public async migrate({ read, modify, persis }: {
-        read: IRead,
-        modify: IModify,
-        persis: IPersistence,
-    }) {
-        const allJobs = await getReminders({ read });
-        const jobs = allJobs.filter((j) => j.status === JobStatus.ACTIVE);
-
-        for (const job of jobs) {
-            const newJobData = { ...job };
-            const user = await read.getUserReader().getById(job.user);
-            if (!user) {
-                continue;
-            }
-
-            const nextRunAt = getNextRunAt({
-                type: job.type,
-                whenDate: job.whenDate,
-                whenTime: job.whenTime,
-                offset: user.utcOffset,
-            });
-
-            if (nextRunAt) {
-                const nextJobId = await modify.getScheduler().scheduleOnce({
-                    id: AppConfig.jobKey,
-                    when: nextRunAt.toISOString(),
-                    data: { id: `${user.username}-${job.createdAt}` },
-                });
-
-                if (nextJobId) {
-                    newJobData.jobId = nextJobId;
-                    newJobData.nextRunAt = nextRunAt.getTime();
-                }
-
-                await setReminder({
-                    persis,
-                    data: newJobData,
-                });
-            }
-        }
     }
 
     private formValidation({ formData, whenUTCTimestamp }: {

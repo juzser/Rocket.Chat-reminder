@@ -18,6 +18,9 @@ export const vi = {
     reminder: {
         createModal: {
             heading: 'Tạo Reminder',
+            ref_message_caption: (channel?: string) => `Bạn đang tạo reminder cho message${ channel ? ` từ channel **#${channel}**` : '' }:`,
+            ref_message_author: (author: string) => `**Người gửi**: ${author}`,
+            ref_message_content: (content: string) => `**Nội dung**: ${content || 'Không thể hiển thị...'}`,
             when: 'Remind vào ngày',
             time: 'Lúc',
             repeat: 'Lặp lại',
@@ -25,8 +28,8 @@ export const vi = {
                 once: 'Một lần',
                 daily: 'Hàng ngày',
                 weekly: 'Hàng tuần',
-                weekdays: 'Ngày thường (không tính thứ 7 và chủ nhật)',
-                weekdays_pure: 'Ngày thường',
+                weekdays: 'Ngày thường (Thứ 2 - Thứ 6)',
+                weekdays_pure: 'Ngày thường (Thứ 2 - Thứ 6)',
                 monthly: 'Hàng tháng',
             },
             message: 'Message',
@@ -47,12 +50,12 @@ export const vi = {
 
         listModal: {
             heading: 'List Reminder',
-            caption_active: (count: number, paused: number) => `Bạn có **${count}** reminder đang hoạt động và **${paused}** reminder đang tạm dừng.`,
+            caption_active: (count: number, paused: number) => `Bạn có **${count}** reminder đang hoạt động${paused ? ` và **${paused}** reminder đang tạm dừng.` : '.'}`,
             caption_finished: (count: number) => `Bạn có **${count}** reminder đã hoàn thành.`,
             no_reminders: 'Tạo reminder mới bằng cách gõ `/reminder`',
-            list_active: '**Các reminder đang hoạt động:**',
-            list_paused: '**Các reminder đang tạm dừng:**',
-            list_finished: '**Các reminder đã hoàn thành:**',
+            list_active: ':fire: **Các reminder đang hoạt động:**',
+            list_paused: ':pause_button: **Các reminder đang tạm dừng:**',
+            list_finished: ':white_check_mark: **Các reminder đã hoàn thành:**',
             view_finished: 'Xem reminder đã hoàn thành',
             view_active: 'Xem reminder đang hoạt động',
         },
@@ -64,16 +67,23 @@ export const vi = {
             message: 'Nội dung',
             button_finished: 'Hoàn thành',
             button_pause: 'Tạm dừng',
-            button_resume: 'Tiếp tục',
+            button_resume: ':arrow_forward: Tiếp tục',
             button_cancel: 'Hủy',
             button_remove: 'Xóa',
         },
 
         message: {
-            caption_self: ':rotating_light: Ê, bạn đã nhờ tôi nhắc bạn:',
-            caption_user: (owner: string) => `:rotating_light: Này, @${owner} nhờ tôi nhắc bạn:`,
-            caption_channel: (owner: string) => `:rotating_light: Alo alo, @${owner} nhờ tôi nhắc mọi người:`,
-        }
+            caption_self: ':rotating_light: Ê, bạn đã nhờ tôi nhắc bạn',
+            caption_user: (owner: string) => `:rotating_light: Này, @${owner} nhờ tôi nhắc bạn`,
+            caption_channel: (owner: string) => `:rotating_light: Alo alo, @${owner} nhờ tôi nhắc mọi người`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` về [message](${msgLink})${channel ? ` trong #${channel}` : ''} với lời nhắn`,
+        },
+
+        messageAction: {
+            caption: '- Tạo reminder: `/remind create`\n- Xem danh sách reminder: `/remind list` \n\n Bạn cũng có thể tạo reminder để quote lại một message bằng cách ấn vào nút `⏰ Tạo reminder` ở action cạnh mỗi message.',
+            button_create: 'Tạo reminder',
+            button_list: 'Xem danh sách reminder',
+        },
     },
 };
 

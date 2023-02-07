@@ -1,21 +1,26 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { ButtonStyle, IBlockElement, IOptionObject } from '@rocket.chat/apps-engine/definition/uikit';
+import { ButtonStyle, IOptionObject } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
+import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
-import { lang } from '../lang/index';
-import { convertTimestampToDate, getMemberOptions } from '../lib/helpers';
+import { Lang } from '../lang/index';
+import { convertTimestampToDate, truncate, getMemberOptions, getRoomName } from '../lib/helpers';
 import { JobTargetType, JobType } from '../interfaces/IJob';
-import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
-export async function reminderCreate({ app, room, user, modify, targetType }: {
+export async function reminderCreate({ app, room, user, read, modify, targetType, refMessage }: {
     app: AppClass;
     room: IRoom;
     user: IUser;
+    read: IRead;
     modify: IModify;
     targetType?: JobTargetType;
+    refMessage?: IMessage;
 }): Promise<IUIKitModalViewParam> {
+    const { lang } = new Lang(user.settings?.preferences?.language);
+
     const block = modify.getCreator().getBlockBuilder();
 
     const userTzOffset = user.utcOffset * 60 * 60 * 1000;
@@ -69,6 +74,26 @@ export async function reminderCreate({ app, room, user, modify, targetType }: {
         });
     }
 
+    // Display ref message
+    if (refMessage) {
+        const roomName = await getRoomName(read, refMessage.room);
+
+        block
+            .addSectionBlock({
+                text: block.newMarkdownTextObject(
+                    lang.reminder.createModal.ref_message_caption(truncate(roomName, 40))
+                ),
+            })
+            .addContextBlock({
+                elements: [
+                    block.newMarkdownTextObject(`
+                    ${lang.reminder.createModal.ref_message_author(refMessage.sender.username)}
+                    ${lang.reminder.createModal.ref_message_content(truncate(refMessage.text || '', 100))}`),
+                ]
+            })
+            .addDividerBlock();
+    }
+
     block
         .addInputBlock({
             blockId: 'reminderData',
@@ -103,7 +128,7 @@ export async function reminderCreate({ app, room, user, modify, targetType }: {
             label: block.newPlainTextObject(lang.reminder.createModal.message),
             element: block.newPlainTextInputElement({
                 actionId: 'message',
-                placeholder: block.newPlainTextObject(lang.reminder.createModal.message),
+                placeholder: block.newPlainTextObject(lang.reminder.createModal.message_placeholder),
                 multiline: true,
             })
         })
@@ -161,7 +186,7 @@ export async function reminderCreate({ app, room, user, modify, targetType }: {
     }
 
     return {
-        id: `modal-reminder-create--${room.id}`,
+        id: `modal-reminder-create--${room.id}${refMessage ? `--${refMessage.id}` : ''}`,
         title: block.newPlainTextObject(lang.reminder.createModal.heading),
         submit: block.newButtonElement({
             text: block.newPlainTextObject(lang.common.confirm),
@@ -171,5 +196,6 @@ export async function reminderCreate({ app, room, user, modify, targetType }: {
             text: block.newPlainTextObject(lang.common.cancel),
         }),
         blocks: block.getBlocks(),
+
     };
 }

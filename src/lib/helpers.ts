@@ -1,12 +1,12 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IMessageAttachment } from '@rocket.chat/apps-engine/definition/messages';
+import { IMessage, IMessageAttachment } from '@rocket.chat/apps-engine/definition/messages';
 import { IRoom, RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { BlockBuilder, IOptionObject, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as appClass } from '../../OeReminderApp';
 import { JobType } from '../interfaces/IJob';
-import { lang } from '../lang/index';
+import { Lang } from '../lang/index';
 import { AppConfig } from './config';
 
 /**
@@ -147,7 +147,7 @@ export async function updateMessage({ app, modify, messageId, sender, message, a
  * @param username the username to create a direct with bot
  * @returns the room or undefined if botUser or botUsername is not set
  */
-export async function getDirect(app: appClass, username: string, read: IRead, modify: IModify): Promise <IRoom | undefined > {
+export async function getDirect(app: appClass, username: string, read: IRead, modify: IModify): Promise <IRoom | undefined> {
     if (app.botUsername) {
         const usernames = [app.botUsername, username];
         let room;
@@ -162,12 +162,17 @@ export async function getDirect(app: appClass, username: string, read: IRead, mo
             return room;
         } else if (app.botUser) {
             // Create direct room between botUser and username
-            const newRoom = modify.getCreator().startRoom()
-                .setType(RoomType.DIRECT_MESSAGE)
-                .setCreator(app.botUser)
-                .setMembersToBeAddedByUsernames(usernames);
-            const roomId = await modify.getCreator().finish(newRoom);
-            return await read.getRoomReader().getById(roomId);
+            try {
+                const newRoom = modify.getCreator().startRoom()
+                    .setType(RoomType.DIRECT_MESSAGE)
+                    .setCreator(app.botUser)
+                    .setMembersToBeAddedByUsernames(usernames);
+                const roomId = await modify.getCreator().finish(newRoom);
+                return await read.getRoomReader().getById(roomId);
+            } catch (error) {
+                app.getLogger().log(error);
+                return;
+            }
         }
     }
     return;
@@ -289,6 +294,8 @@ export function getWeekDayName(date: string): string {
     const ts = convertDateToTimestamp(date);
     const day = new Date(ts).getDay();
 
+    const { lang } = new Lang();
+
     switch(day) {
         case 0:
             return lang.date.sunday;
@@ -323,7 +330,7 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
     nextRunAt.setMonth(currentDate.getMonth());
     nextRunAt.setFullYear(currentDate.getFullYear());
 
-    const currentHoursMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
+    const currentHoursMinutes = currentDate.getHours() * 60 + currentDate.getMinutes() + 1;
     const originHoursMinutes = nextRunAt.getHours() * 60 + nextRunAt.getMinutes();
 
     // Get next run base on the current time
@@ -375,4 +382,48 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
     }
 
     return nextRunAt;
+}
+
+/**
+ * Truncate a string
+ */
+export function truncate(str: string, length: number): string {
+    if (str.length > length) {
+        return `${str.substring(0, length)}...`;
+    }
+
+    return str;
+}
+
+/**
+ * Generate message link
+ */
+export async function generateMsgLink(app: appClass, message: IMessage): Promise<string> {
+    if (message.room.type === RoomType.CHANNEL) {
+        return `${app.siteUrl}/channel/${message.room.slugifiedName}?msg=${message.id}`;
+    }
+
+    if (message.room.type === RoomType.PRIVATE_GROUP) {
+        return `${app.siteUrl}/group/${message.room.slugifiedName}?msg=${message.id}`;
+    }
+
+    return `${app.siteUrl}/direct/${message.room.id}?msg=${message.id}`;
+}
+
+/**
+ * Get room name
+ */
+export async function getRoomName(read: IRead, room: IRoom): Promise<string> {
+    if (room.type === RoomType.DIRECT_MESSAGE && room.userIds) {
+        // const userNames: string[] = [];
+        // for (const userId of room.userIds) {
+        //     const user = await read.getUserReader().getById(userId);
+        //     userNames.push(user.username);
+        // }
+
+        // return `direct (${userNames.join(', ')})`;
+        return 'direct';
+    }
+
+    return room.displayName || room.slugifiedName || room.id;
 }

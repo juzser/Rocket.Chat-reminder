@@ -6,8 +6,12 @@ If you need English version, just let me know, I prepared translation feature, s
 
 ## Features
 
-- Remind once
-...
+- One time & frequency remind
+- Remind to yourself, channel or other users.
+- Quote a message in reminder.
+
+
+
 
 
 

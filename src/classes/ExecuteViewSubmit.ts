@@ -18,11 +18,10 @@ export class ExecuteViewSubmit {
 
         const { state, id } = data.view;
 
-        this.app.getLogger().log(data);
-
         // Create Reminder
         if (id.startsWith('modal-reminder-create')) {
-            const roomId = id.split('--')[1];
+            const [modalName, roomId, ...refMsgId] = id.split('--');
+
             const room = await this.read.getRoomReader().getById(roomId);
 
             const { reminderData } = state as Record<'reminderData', IJobFormData>;
@@ -35,6 +34,7 @@ export class ExecuteViewSubmit {
                     read: this.read,
                     modify: this.modify,
                     persis: this.persis,
+                    refMsgId: refMsgId[0],
                 });
             } catch(err) {
                 return context.getInteractionResponder().viewErrorResponse({

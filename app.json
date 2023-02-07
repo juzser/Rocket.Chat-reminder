@@ -11,8 +11,11 @@
     "name": "oe-reminder",
     "nameSlug": "oe-reminder",
     "classFile": "OeReminderApp.ts",
-    "description": "Advanced reminder app",
+    "description": "Advanced reminder app, with: one time, frequency reminder & message quote remind.",
     "permissions": [
+        {
+            "name": "server-setting.read"
+        },
         {
             "name": "ui.interact"
         },

@@ -1,10 +1,11 @@
 import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/settings';
+import { AppConfig } from './config';
 
 export const settings: Array<ISetting> = [
     {
         id: 'bot_username',
         type: SettingType.STRING,
-        packageValue: 'rocket.cat',
+        packageValue: 'oe-reminder.bot',
         required: true,
         public: false,
         i18nLabel: 'bot_username',

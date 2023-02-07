@@ -2,8 +2,8 @@ import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/de
 import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 
 import { OeReminderApp as AppClass } from '../../../OeReminderApp';
-import { CancelAllCommand, CancelCommand } from './cancel';
-import { CreateCommand } from './create';
+import { CreateCommand, CreatePureCommand } from './create';
+import { HelpCommand } from './help';
 import { ListCommand } from './list';
 import { MigrateCommand } from './migrate';
 
@@ -15,8 +15,9 @@ export class ReminderCommand implements ISlashCommand {
 
     private CommandEnum = {
         Create: 'create',
+        CreatePure: 'create-pure',
         Cancel: 'cancel',
-        CancelAll: 'cancel-all',
+        Help: 'help',
         List: 'list',
         Migrate: 'migrate',
     };
@@ -28,15 +29,11 @@ export class ReminderCommand implements ISlashCommand {
 
         switch (command) {
             case this.CommandEnum.Create:
-                await CreateCommand({ app: this.app, context, read, persis, modify, params });
+                await CreateCommand({ app: this.app, context, read, modify });
                 break;
 
-            case this.CommandEnum.Cancel:
-                await CancelCommand({ app: this.app, context, read, persis, modify, params });
-                break;
-
-            case this.CommandEnum.CancelAll:
-                await CancelAllCommand({ app: this.app, context, read, persis, modify, params });
+            case this.CommandEnum.CreatePure:
+                await CreatePureCommand({ app: this.app, context, read, modify });
                 break;
 
             case this.CommandEnum.List:
@@ -47,8 +44,12 @@ export class ReminderCommand implements ISlashCommand {
                 await MigrateCommand({ app: this.app, context, read, persis, modify });
                 break;
 
+            case this.CommandEnum.Help:
+                await HelpCommand({ app: this.app, context, modify });
+                break;
+
             default:
-                await CreateCommand({ app: this.app, context, read, persis, modify, params });
+                await HelpCommand({ app: this.app, context, modify });
         }
     }
 }

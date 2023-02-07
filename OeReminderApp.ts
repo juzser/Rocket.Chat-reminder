@@ -19,11 +19,13 @@ import { ReminderCommand } from './src/commands/remind/main';
 import { Reminder } from './src/classes/Reminder';
 import { settings } from './src/lib/settings';
 import { MembersCache } from './src/services/cache-members';
-import { UIKitBlockInteractionContext, UIKitViewSubmitInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
+import { IUIKitResponse, UIKitActionButtonInteractionContext, UIKitBlockInteractionContext, UIKitViewSubmitInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 import { ExecuteBlockAction } from './src/classes/ExecuteBlockAction';
 import { ExecuteViewSubmit } from './src/classes/ExecuteViewSubmit';
 import { AppConfig } from './src/lib/config';
 import { JobsCache } from './src/services/cache-jobs';
+import { UIActionButtonContext } from '@rocket.chat/apps-engine/definition/ui';
+import { ExecuteActionButton } from './src/classes/ExecuteActionButton';
 
 export class OeReminderApp extends App {
     public botUsername: string;
@@ -34,6 +36,7 @@ export class OeReminderApp extends App {
 
     public enableRemindChannel: boolean;
     public maxUserRemind: number;
+    public siteUrl: string;
 
     public reminder: Reminder;
 
@@ -65,6 +68,27 @@ export class OeReminderApp extends App {
     }
 
     /**
+     * Execute when a action button on board clicked
+     */
+    public async executeActionButtonHandler(
+        context: UIKitActionButtonInteractionContext,
+        read: IRead,
+        http: IHttp,
+        persis: IPersistence,
+        modify: IModify
+    ): Promise<IUIKitResponse> {
+        try {
+            const handler = new ExecuteActionButton(this, modify, read);
+            await handler.run(context);
+        } catch (err) {
+            this.getLogger().log(`${ err.message }`);
+            return context.getInteractionResponder().errorResponse();
+        }
+
+        return context.getInteractionResponder().successResponse();
+    }
+
+    /**
      * Execute when a form submitted
      */
     public async executeViewSubmitHandler(context: UIKitViewSubmitInteractionContext, read: IRead, http: IHttp, persis: IPersistence, modify: IModify) {
@@ -78,6 +102,7 @@ export class OeReminderApp extends App {
     }
 
     public async onEnable(environment: IEnvironmentRead, configurationModify: IConfigurationModify): Promise<boolean> {
+        this.siteUrl = await environment.getServerSettings().getValueById('Site_Url');
         this.membersCache = new MembersCache(this);
         this.jobsCache = new JobsCache(this);
         this.reminder = new Reminder(this);
@@ -138,11 +163,17 @@ export class OeReminderApp extends App {
         // Slash Command
         await configuration.slashCommands.provideSlashCommand(new ReminderCommand(this));
 
-        // configuration.ui.registerButton({
-        //     actionId: 'off-request-trigger',
-        //     labelI18n: 'off-request-trigger-label',
-        //     context: UIActionButtonContext.MESSAGE_BOX_ACTION,
-        // });
+        configuration.ui.registerButton({
+            actionId: 'reminder-trigger',
+            labelI18n: 'reminder-trigger-label',
+            context: UIActionButtonContext.MESSAGE_BOX_ACTION,
+        });
+
+        configuration.ui.registerButton({
+            actionId: 'reminder-trigger-message',
+            labelI18n: 'reminder-trigger-message-label',
+            context: UIActionButtonContext.MESSAGE_ACTION,
+        });
 
         await configuration.scheduler.registerProcessors([{
             id: AppConfig.jobKey,
