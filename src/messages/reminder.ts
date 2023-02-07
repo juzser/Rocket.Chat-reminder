@@ -36,8 +36,6 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         const roomName = await getRoomName(read, refMsg.room);
 
         caption += lang.reminder.message.caption_ref_msg(msgLink, truncate(roomName, 40));
-        caption += ':';
-
         // refMsgAttachment = {
         //     color: AppConfig.attachmentColor,
         //     text: refMsg?.text,
@@ -47,6 +45,8 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         //     },
         // };
     }
+
+    caption += ':';
 
     // const attachment: IMessageAttachment = {
     //     color: AppConfig.attachmentColor,
