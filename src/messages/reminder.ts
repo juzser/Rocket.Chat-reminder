@@ -7,7 +7,7 @@ import { OeReminderApp as AppClass } from '../../OeReminderApp';
 import { IJob, JobTargetType, JobType } from '../interfaces/IJob';
 import { Lang } from '../lang/index';
 import { AppConfig } from '../lib/config';
-import { convertTimestampToDate, convertTimestampToTime, generateMsgLink, getRoomName, sendMessage, truncate } from '../lib/helpers';
+import { convertTimestampToDate, convertTimestampToTime, formatMsgInAttachment, generateMsgLink, getRoomName, sendMessage, truncate } from '../lib/helpers';
 
 export async function ReminderMessage({ app, owner, jobData, read, modify, room, refMsg }: {
     app: AppClass;
@@ -41,10 +41,12 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
             ? `${app.siteUrl}${refMsg.avatarUrl}`
             : `${app.siteUrl}/avatar/${refMsg.sender.username}`;
 
+        const msgTextFormat = formatMsgInAttachment(refMsg.text || '');
+
         caption += lang.reminder.message.caption_ref_msg(truncate(roomName, 40));
         refMsgAttachment = {
             color: AppConfig.attachmentColor,
-            text: refMsg.text,
+            text: msgTextFormat,
             title: {
                 link: msgLink,
                 value: lang.reminder.message.title_ref_msg(msgDateFormat, roomName),

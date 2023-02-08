@@ -427,3 +427,14 @@ export async function getRoomName(read: IRead, room: IRoom): Promise<string> {
 
     return room.displayName || room.slugifiedName || room.id;
 }
+
+/**
+ * Format message in attachment
+ */
+export function formatMsgInAttachment(msg: string) {
+    if (!msg) return msg;
+
+    const msgFormatted = msg.replace(/<http(.*)\|(.*)>/g, '[$2]($1)');
+
+    return msgFormatted;
+}
