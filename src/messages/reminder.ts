@@ -39,7 +39,7 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         const msgDateFormat = msgDate ? `${convertTimestampToTime(msgDate)} - ${convertTimestampToDate(msgDate)}` : '';
         const msgAvatar = refMsg.avatarUrl
             ? `${app.siteUrl}${refMsg.avatarUrl}`
-            : `${app.siteUrl}avatar/${refMsg.sender.username}`;
+            : `${app.siteUrl}/avatar/${refMsg.sender.username}`;
 
         caption += lang.reminder.message.caption_ref_msg(truncate(roomName, 40));
         refMsgAttachment = {

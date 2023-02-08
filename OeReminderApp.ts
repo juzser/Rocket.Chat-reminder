@@ -102,7 +102,7 @@ export class OeReminderApp extends App {
     }
 
     public async onEnable(environment: IEnvironmentRead, configurationModify: IConfigurationModify): Promise<boolean> {
-        this.siteUrl = await environment.getServerSettings().getValueById('Site_Url');
+        this.siteUrl = (await environment.getServerSettings().getValueById('Site_Url')).replace(/\/$/, '');
         this.membersCache = new MembersCache(this);
         this.jobsCache = new JobsCache(this);
         this.reminder = new Reminder(this);
