@@ -11,7 +11,7 @@
     "name": "Cukoo Reminder",
     "nameSlug": "oe-reminder",
     "classFile": "OeReminderApp.ts",
-    "description": "Advanced FREE reminder app that will remind you what to do.\n\n**Main features:**\n- One time, frequency remind.\n- View active, completed reminders.\n- Pause/Resume reminders.\n-Remind yourself, channel or other users.\n- Quote a message to a reminder.\n- Easy to use & fully performance optimization.\n\nAND, it's opensources. You can feel free to ask me anything via Github repo.",
+    "description": "Advanced FREE reminder app that will remind you what to do. Main features: One time, frequency remind. --- View active, completed reminders. --- Pause/Resume reminders. --- Remind yourself, channel or other users. --- Quote a message to a reminder. --- Easy to use & fully performance optimization. --- AND, it's Opensources. You can feel free to ask me anything via Github repo.",
     "permissions": [
         {
             "name": "server-setting.read"

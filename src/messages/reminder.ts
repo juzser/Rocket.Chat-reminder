@@ -30,20 +30,19 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         caption = lang.reminder.message.caption_channel(owner.username);
     }
 
-    // let refMsgAttachment: IMessageAttachment | null = null;
+    let refMsgAttachment: IMessageAttachment | null = null;
     if (refMsg) {
-        const msgLink = await generateMsgLink(app, refMsg);
         const roomName = await getRoomName(read, refMsg.room);
 
-        caption += lang.reminder.message.caption_ref_msg(msgLink, truncate(roomName, 40));
-        // refMsgAttachment = {
-        //     color: AppConfig.attachmentColor,
-        //     text: refMsg?.text,
-        //     author: {
-        //         name: refMsg.sender.username,
-        //         icon: `${app.siteUrl}${refMsg.avatarUrl}`,
-        //     },
-        // };
+        caption += lang.reminder.message.caption_ref_msg(truncate(roomName, 40));
+        refMsgAttachment = {
+            color: AppConfig.attachmentColor,
+            text: refMsg?.text,
+            author: {
+                name: refMsg.sender.username,
+                icon: `${app.siteUrl}${refMsg.avatarUrl}`,
+            },
+        };
     }
 
     caption += ':';
@@ -67,7 +66,7 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         modify,
         room,
         message: caption,
-        // attachments: refMsgAttachment ? [refMsgAttachment] : [],
+        attachments: refMsgAttachment ? [refMsgAttachment] : [],
         group: true,
     });
 

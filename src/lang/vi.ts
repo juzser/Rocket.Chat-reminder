@@ -76,7 +76,7 @@ export const vi = {
             caption_self: ':rotating_light: Ê, bạn đã nhờ tôi nhắc bạn',
             caption_user: (owner: string) => `:rotating_light: Này, @${owner} nhờ tôi nhắc bạn`,
             caption_channel: (owner: string) => `:rotating_light: Alo alo, @${owner} nhờ tôi nhắc mọi người`,
-            caption_ref_msg: (msgLink: string, channel?: string) => ` về [message](${msgLink})${channel ? ` trong #${channel}` : ''} với lời nhắn`,
+            caption_ref_msg: (channel?: string) => ` về message${channel ? ` trong #${channel}` : ''}`,
         },
 
         messageAction: {
