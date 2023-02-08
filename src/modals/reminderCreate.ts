@@ -154,10 +154,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
         await app.membersCache.getMembers();
 
         if (app.membersCache.members) {
-            // Remove current user from list
-            const users = app.membersCache.members.filter((member) => {
-                return member.id !== user.id;
-            });
+            const users = app.membersCache.members;
 
             const userOptions = getMemberOptions(users);
 

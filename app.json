@@ -8,10 +8,10 @@
         "homepage": "https://github.com/juzser",
         "support": "https://github.com/juzser/Rocket.Chat-reminder"
     },
-    "name": "oe-reminder",
+    "name": "Cukoo Reminder",
     "nameSlug": "oe-reminder",
     "classFile": "OeReminderApp.ts",
-    "description": "Advanced reminder app, with: one time, frequency reminder & message quote remind.",
+    "description": "Advanced FREE reminder app that will remind you what to do.\n\n**Main features:**\n- One time, frequency remind.\n- View active, completed reminders.\n- Pause/Resume reminders.\n-Remind yourself, channel or other users.\n- Quote a message to a reminder.\n- Easy to use & fully performance optimization.\n\nAND, it's opensources. You can feel free to ask me anything via Github repo.",
     "permissions": [
         {
             "name": "server-setting.read"
