@@ -23,6 +23,8 @@ export class ExecuteActionButton {
         if (actionId === 'reminder-trigger-message') {
             const { message } = context.getInteractionData();
 
+            this.app.getLogger().info(message);
+
             await openCreateModal({
                 app: this.app,
                 user,
