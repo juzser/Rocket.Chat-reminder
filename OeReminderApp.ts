@@ -31,6 +31,8 @@ export class OeReminderApp extends App {
     public botUsername: string;
     public botUser: IUser;
 
+    public botName: string;
+
     public defaultChannelName: string;
     public defaultChannel: IRoom;
 
@@ -114,6 +116,8 @@ export class OeReminderApp extends App {
         }
         this.botUser = await this.getAccessors().reader.getUserReader().getByUsername(this.botUsername) as IUser;
 
+        this.botName = await environment.getSettings().getValueById('bot_name');
+
         this.defaultChannelName = await environment.getSettings().getValueById('default_channel');
         this.defaultChannel = await this.getAccessors().reader.getRoomReader().getByName(this.defaultChannelName) as IRoom;
 
@@ -138,6 +142,9 @@ export class OeReminderApp extends App {
                 if (this.botUsername) {
                     this.botUser = await read.getUserReader().getByUsername(this.botUsername) as IUser;
                 }
+                break;
+            case 'bot_name':
+                this.botName = setting.value;
                 break;
             case 'default_channel':
                 this.defaultChannelName = setting.value;
