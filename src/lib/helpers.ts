@@ -34,7 +34,7 @@ export async function sendMessage({ app, modify, room, message, attachments, blo
     const msg = modify.getCreator().startMessage()
         .setGroupable(group || false)
         .setSender(app.botUser)
-        .setUsernameAlias(AppConfig.alias)
+        .setUsernameAlias(app.botName)
         .setAvatarUrl(avatar || AppConfig.avatar)
         .setRoom(room);
 
@@ -75,7 +75,7 @@ export async function notifyUser({ app, message, user, room, modify, blocks, att
 }): Promise<void> {
     const msg = modify.getCreator().startMessage()
         .setSender(app.botUser)
-        .setUsernameAlias(AppConfig.alias)
+        .setUsernameAlias(app.botName)
         .setAvatarUrl(AppConfig.avatar)
         .setText(message)
         .setRoom(room);
