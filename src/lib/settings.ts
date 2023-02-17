@@ -12,6 +12,15 @@ export const settings: Array<ISetting> = [
         i18nDescription: 'bot_username_desc',
     },
     {
+        id: 'bot_name',
+        type: SettingType.STRING,
+        packageValue: 'Cukoo',
+        required: true,
+        public: false,
+        i18nLabel: 'bot_name',
+        i18nDescription: 'bot_name_desc',
+    },
+    {
         id: 'default_channel',
         type: SettingType.STRING,
         packageValue: 'general',
