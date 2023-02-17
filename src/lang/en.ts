@@ -51,7 +51,7 @@ export const en = {
             heading: 'List Reminder',
             caption_active: (count: number, paused: number) => `You have total **${count}** active reminder(s)${paused ? ` and **${paused}** paused reminder(s)` : ''}.`,
             caption_finished: (count: number) => `You have total **${count}** completed reminder(s).`,
-            no_reminders: 'Create reminder by typing `/reminder`',
+            no_reminders: 'Create reminder by typing `/cukoo-remind`',
             list_active: ':fire: **Active reminders:**',
             list_paused: ':pause_button: **Paused reminders:**',
             list_finished: ':white_check_mark: **Completed reminders:**',
@@ -79,7 +79,7 @@ export const en = {
         },
 
         messageAction: {
-            caption: '- Create reminder: `/remind create`\n- View reminder list: `/remind list` \n\n You also can create reminder to quote a message, by click on the button `⏰ Create reminder` in the action menu beside a message.',
+            caption: '- Create reminder: `/cukoo-remind create`\n- View reminder list: `/cukoo-remind list` \n\n You also can create reminder to quote a message, by click on the button `⏰ Create reminder` in the action menu beside a message.',
             button_create: 'Create reminder',
             button_list: 'View reminder list',
         },
