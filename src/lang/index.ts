@@ -12,7 +12,7 @@ export class Lang {
             //     this._lang = vi;
             //     break;
             default:
-                this._lang = en;
+                this._lang = vi;
                 break;
         }
     }
