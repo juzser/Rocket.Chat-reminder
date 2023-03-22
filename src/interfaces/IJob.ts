@@ -2,6 +2,7 @@ export enum JobType {
     DAILY = 'daily',
     WEEKDAYS = 'weekdays',
     WEEKLY = 'weekly',
+    BIWEEKLY = 'biweekly',
     MONTHLY = 'monthly',
     ONCE = 'once',
 }

@@ -367,6 +367,20 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
         return nextRunAt;
     }
 
+    if (type === JobType.BIWEEKLY) {
+        // Compare day minutes with origin day minutes in 2 weeks
+        // If current is greater than origin, then next run is the origin day of next 2 weeks
+        // Otherwise, next run is the origin day of this week
+        const current = currentDate.getDay() * 24 * 60 + currentHoursMinutes;
+        const origin = nextRunAt.getDay() * 24 * 60 + originHoursMinutes;
+
+        const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
+
+        nextRunAt.setDate(current > origin ? weekDay + 14 : weekDay);
+
+        return nextRunAt;
+    }
+
     if (type === JobType.MONTHLY) {
         // Compare date minutes with origin date minutes in month
         // If current is greater than origin, then next run is the origin date of next month

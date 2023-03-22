@@ -27,6 +27,7 @@ export const en = {
                 once: 'No repeat',
                 daily: 'Daily',
                 weekly: 'Weekly',
+                biweekly: 'Biweekly (2 weeks)',
                 weekdays: 'Weekdays (Mon-Fri)',
                 weekdays_pure: 'Weekdays',
                 monthly: 'Monthly',
