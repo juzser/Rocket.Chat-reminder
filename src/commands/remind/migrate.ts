@@ -2,9 +2,9 @@ import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definitio
 import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 
 import { OeReminderApp as AppClass } from '../../../OeReminderApp';
-import { JobStatus } from '../../interfaces/IJob';
+import { JobStatus, JobType } from '../../interfaces/IJob';
 import { AppConfig } from '../../lib/config';
-import { getNextRunAt, notifyUser } from '../../lib/helpers';
+import { getNextRunAt, getWhenDateTime, notifyUser } from '../../lib/helpers';
 import { getReminders, setReminder } from '../../services/reminder';
 
 // Open modal to request time off
@@ -40,6 +40,9 @@ export async function MigrateCommand({ app, context, read, persis, modify }: {
         });
 
         if (nextRunAt) {
+            // Remove old job
+            await modify.getScheduler().cancelJob(job.jobId);
+
             const nextJobId = await modify.getScheduler().scheduleOnce({
                 id: AppConfig.jobKey,
                 when: nextRunAt.toISOString(),

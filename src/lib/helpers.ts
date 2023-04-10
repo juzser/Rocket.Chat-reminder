@@ -324,24 +324,22 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
 }): Date {
     // Calculate the next run base on the last run
     // But the time should be correct as whenDate & whenTime
-    const nextRunAt = getWhenDateTime({ whenDate, whenTime, offset });
+    let nextRunAt = getWhenDateTime({ whenDate, whenTime, offset });
     const currentDate = new Date();
 
-    nextRunAt.setMonth(currentDate.getMonth());
-    nextRunAt.setFullYear(currentDate.getFullYear());
+    const currentTimestamp = currentDate.getTime() + 60 * 1000; // Add 1 minutes to process
 
-    const currentHoursMinutes = currentDate.getHours() * 60 + currentDate.getMinutes() + 1;
-    const originHoursMinutes = nextRunAt.getHours() * 60 + nextRunAt.getMinutes();
+    nextRunAt.setFullYear(currentDate.getFullYear());
+    nextRunAt.setMonth(currentDate.getMonth());
 
     // Get next run base on the current time
     if (type === JobType.DAILY || type === JobType.WEEKDAYS) {
-        // Compare hours & minutes with original hours & minutes
-        // If current hh:mm greater than original, then next run is tomorrow
-        // Otherwise, next run is today
-        nextRunAt.setDate(currentHoursMinutes > originHoursMinutes
-            ? currentDate.getDate() + 1
-            : currentDate.getDate()
-        );
+        nextRunAt.setDate(currentDate.getDate());
+
+        // If the time is passed, then wait until next day
+        if (currentTimestamp > nextRunAt.getTime()) {
+            nextRunAt.setDate(currentDate.getDate() + 1);
+        }
 
         if (type === JobType.WEEKDAYS) {
             // Skip weekend
@@ -354,41 +352,33 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
     }
 
     if (type === JobType.WEEKLY) {
-        // Compare day minutes with origin day minutes in week
-        // If current is greater than origin, then next run is the origin day of next week
-        // Otherwise, next run is the origin day of this week
-        const current = currentDate.getDay() * 24 * 60 + currentHoursMinutes;
-        const origin = nextRunAt.getDay() * 24 * 60 + originHoursMinutes;
-
         const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
 
-        nextRunAt.setDate(current > origin ? weekDay + 7 : weekDay);
+        nextRunAt.setDate(weekDay);
+
+        // If the time is passed, then wait until next week
+        if (currentTimestamp > nextRunAt.getTime()) {
+            nextRunAt.setDate(weekDay + 7);
+        }
 
         return nextRunAt;
     }
 
     if (type === JobType.BIWEEKLY) {
-        // Compare day minutes with origin day minutes in 2 weeks
-        // If current is greater than origin, then next run is the origin day of next 2 weeks
-        // Otherwise, next run is the origin day of this week
-        const current = currentDate.getDay() * 24 * 60 + currentHoursMinutes;
-        const origin = nextRunAt.getDay() * 24 * 60 + originHoursMinutes;
-
         const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
 
-        nextRunAt.setDate(current > origin ? weekDay + 14 : weekDay);
+        nextRunAt.setDate(weekDay);
+
+        // If the time is passed, then wait until next 2 weeks
+        if (currentTimestamp > nextRunAt.getTime()) {
+            nextRunAt.setDate(weekDay + 14);
+        }
 
         return nextRunAt;
     }
 
     if (type === JobType.MONTHLY) {
-        // Compare date minutes with origin date minutes in month
-        // If current is greater than origin, then next run is the origin date of next month
-        // Otherwise, next run is the origin date of this month
-        const current = currentDate.getDate() * 24 * 60 + currentHoursMinutes;
-        const origin = nextRunAt.getDate() * 24 * 60 + originHoursMinutes;
-
-        if (current > origin) {
+        if (currentTimestamp > nextRunAt.getTime()) {
             nextRunAt.setMonth(currentDate.getMonth() + 1);
         }
 
