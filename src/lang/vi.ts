@@ -53,7 +53,7 @@ export const vi = {
             heading: 'List Reminder',
             caption_active: (count: number, paused: number) => `Bạn có **${count}** reminder đang hoạt động${paused ? ` và **${paused}** reminder đang tạm dừng.` : '.'}`,
             caption_finished: (count: number) => `Bạn có **${count}** reminder đã hoàn thành.`,
-            no_reminders: 'Tạo reminder mới bằng cách gõ `/reminder`',
+            no_reminders: 'Tạo reminder mới bằng cách gõ `/remind`',
             list_active: ':fire: **Các reminder đang hoạt động:**',
             list_paused: ':pause_button: **Các reminder đang tạm dừng:**',
             list_finished: ':white_check_mark: **Các reminder đã hoàn thành:**',

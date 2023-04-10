@@ -52,7 +52,7 @@ export const en = {
             heading: 'List Reminder',
             caption_active: (count: number, paused: number) => `You have total **${count}** active reminder(s)${paused ? ` and **${paused}** paused reminder(s)` : ''}.`,
             caption_finished: (count: number) => `You have total **${count}** completed reminder(s).`,
-            no_reminders: 'Create reminder by typing `/reminder`',
+            no_reminders: 'Create reminder by typing `/remind`',
             list_active: ':fire: **Active reminders:**',
             list_paused: ':pause_button: **Paused reminders:**',
             list_finished: ':white_check_mark: **Completed reminders:**',
