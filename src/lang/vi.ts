@@ -28,6 +28,7 @@ export const vi = {
                 once: 'Một lần',
                 daily: 'Hàng ngày',
                 weekly: 'Hàng tuần',
+                biweekly: 'Hai tuần',
                 weekdays: 'Ngày thường (Thứ 2 - Thứ 6)',
                 weekdays_pure: 'Ngày thường (Thứ 2 - Thứ 6)',
                 monthly: 'Hàng tháng',

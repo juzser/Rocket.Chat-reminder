@@ -48,6 +48,10 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
             value: JobType.WEEKLY,
         },
         {
+            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.biweekly),
+            value: JobType.BIWEEKLY,
+        },
+        {
             text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.monthly),
             value: JobType.MONTHLY,
         },

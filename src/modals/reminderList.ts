@@ -103,6 +103,11 @@ function generateJobBlock({ lang, block, job, timeOffset }: {
             const weekday = getWeekDayName(job.whenDate);
             when = `${hour}:${minute} - ${weekday}`;
             break;
+        case JobType.BIWEEKLY:
+            repeatLabel = lang.reminder.createModal.repeat_options.biweekly;
+            const biweekday = getWeekDayName(job.whenDate);
+            when = `${hour}:${minute} - ${biweekday}`;
+            break;
         case JobType.MONTHLY:
             repeatLabel = lang.reminder.createModal.repeat_options.monthly;
             when = `${hour}:${minute} - ${lang.date.day.toLowerCase()} ${day}`;
