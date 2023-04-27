@@ -1,0 +1,16 @@
+{
+    "remind_params": "listar lembretes, criar lembrete", 
+    "remind_desc": "Crie lembretes para você e seus colegas.",
+    "bot_username": "Reminder Bot",
+    "bot_username_desc": "O username utilizado pelo bot para enviar lembretes.",
+    "bot_name": "Nome de exibição utilizado pelo bot",
+    "bot_name_desc": "Nome de exibição utilizado pelo bot",
+    "default_channel": "Canal padrão",
+    "default_channel_desc": "O canal aonde o bot localizará os usuários do servidor. Utilize aqui o canal padrão ou o que contenha o maior número de usuários, a escolha do canal impactará no funcionamento do envio de mensagens a outros usuários.",
+    "enable_remindto_channel": "Habilitar a função criar lembrete em um canal",
+    "enable_remindto_channel_desc": "Habilitar a função de enviar lembretes a um canal",
+    "max_users_remind": "Número máximo de usuários que o bot poderá enviar lembretes",
+    "max_users_remind_desc": "0 para desabilitar. Número máximo de usuários a receberem um lembrete em uma única mensagem.",
+    "reminder-trigger-label": "⏰ Lembrete",
+    "reminder-trigger-message-label": "⏰  Criar lembrete"
+}
