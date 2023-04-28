@@ -1,5 +1,6 @@
 import { vi } from './vi';
 import { en } from './en';
+import { br } from './br';
 
 // export const lang = vi;
 
