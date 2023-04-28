@@ -53,7 +53,7 @@ export const vi = {
             heading: 'List Reminder',
             caption_active: (count: number, paused: number) => `Bạn có **${count}** reminder đang hoạt động${paused ? ` và **${paused}** reminder đang tạm dừng.` : '.'}`,
             caption_finished: (count: number) => `Bạn có **${count}** reminder đã hoàn thành.`,
-            no_reminders: 'Tạo reminder mới bằng cách gõ `/cukoo-remind`',
+            no_reminders: 'Tạo reminder mới bằng cách gõ `/remind`',
             list_active: ':fire: **Các reminder đang hoạt động:**',
             list_paused: ':pause_button: **Các reminder đang tạm dừng:**',
             list_finished: ':white_check_mark: **Các reminder đã hoàn thành:**',
@@ -82,7 +82,7 @@ export const vi = {
         },
 
         messageAction: {
-            caption: '- Tạo reminder: `/cukoo-remind create`\n- Xem danh sách reminder: `/cukoo-remind list` \n\n Bạn cũng có thể tạo reminder để quote lại một message bằng cách ấn vào nút `⏰ Tạo reminder` ở action cạnh mỗi message.',
+            caption: '- Tạo reminder: `/remind create`\n- Xem danh sách reminder: `/remind list` \n\n Bạn cũng có thể tạo reminder để quote lại một message bằng cách ấn vào nút `⏰ Tạo reminder` ở action cạnh mỗi message.',
             button_create: 'Tạo reminder',
             button_list: 'Xem danh sách reminder',
         },
