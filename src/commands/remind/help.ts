@@ -31,7 +31,7 @@ export async function sendHelp({ app, modify, user, room }: {
     const block = modify.getCreator().getBlockBuilder();
     await ReminderActionsMessage({ app, block });
 
-    const { lang } = new Lang(user.settings?.preferences?.language);
+    const { lang } = new Lang(app.appLanguage);
 
     await notifyUser({
         app,

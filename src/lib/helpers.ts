@@ -290,11 +290,11 @@ export function getWhenDateTime({ whenDate, whenTime, offset }: {
 /**
  * Get week day name from lang
  */
-export function getWeekDayName(date: string): string {
+export function getWeekDayName(app: appClass, date: string): string {
     const ts = convertDateToTimestamp(date);
     const day = new Date(ts).getDay();
 
-    const { lang } = new Lang();
+    const { lang } = new Lang(app.appLanguage);
 
     switch(day) {
         case 0:

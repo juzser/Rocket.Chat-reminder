@@ -21,6 +21,29 @@ export const settings: Array<ISetting> = [
         i18nDescription: 'bot_name_desc',
     },
     {
+        id: 'app_language',
+        type: SettingType.SELECT,
+        packageValue: 'en',
+        values: [
+            {
+                key: 'en',
+                i18nLabel: 'app_language_en',
+            },
+            {
+                key: 'vi',
+                i18nLabel: 'app_language_vi',
+            },
+            {
+                key: 'br',
+                i18nLabel: 'app_language_br',
+            }
+        ],
+        required: true,
+        public: false,
+        i18nLabel: 'app_language',
+        i18nDescription: 'app_language_desc',
+    },
+    {
         id: 'default_channel',
         type: SettingType.STRING,
         packageValue: 'general',

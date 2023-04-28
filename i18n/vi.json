@@ -10,5 +10,10 @@
     "max_users_remind": "Max other users to remind",
     "max_users_remind_desc": "0 to disable. The maximum number of other users to remind in a single reminder.",
     "reminder-trigger-label": "⏰ Reminder",
-    "reminder-trigger-message-label": "⏰  Tạo reminder"
+    "reminder-trigger-message-label": "⏰  Tạo reminder",
+    "app_language": "Ngôn ngữ",
+    "app_language_desc": "Ngôn ngữ sử dụng cho app.",
+    "app_language_en": "English",
+    "app_language_vi": "Tiếng Việt",
+    "app_language_br": "Brazilian (Portuguese)"
 }

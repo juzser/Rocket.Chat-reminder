@@ -8,7 +8,7 @@ export async function ReminderActionsMessage({ app, block }: {
     app: AppClass;
     block: BlockBuilder;
 }) {
-    const { lang } = new Lang();
+    const { lang } = new Lang(app.appLanguage);
 
     block.addSectionBlock({
         text: block.newMarkdownTextObject(lang.reminder.messageAction.caption),

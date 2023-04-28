@@ -40,6 +40,8 @@ export class OeReminderApp extends App {
     public maxUserRemind: number;
     public siteUrl: string;
 
+    public appLanguage: string;
+
     public reminder: Reminder;
 
     /**
@@ -124,6 +126,8 @@ export class OeReminderApp extends App {
         this.enableRemindChannel = await environment.getSettings().getValueById('enable_remindto_channel');
         this.maxUserRemind = +(await environment.getSettings().getValueById('max_users_remind')) || 0;
 
+        this.appLanguage = await environment.getSettings().getValueById('app_language');
+
         return true;
     }
 
@@ -157,6 +161,10 @@ export class OeReminderApp extends App {
                 break;
             case 'max_users_remind':
                 this.maxUserRemind = +setting.value || 0;
+                break;
+
+            case 'app_language':
+                this.appLanguage = setting.value;
                 break;
        }
 

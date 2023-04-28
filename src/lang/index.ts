@@ -9,9 +9,15 @@ export class Lang {
 
     constructor(private readonly locale?: string) {
         switch (locale) {
-            // case 'vi-vn':
-            //     this._lang = vi;
-            //     break;
+            case 'vi-vn':
+                this._lang = vi;
+                break;
+            case 'vi':
+                this._lang = vi;
+                break;
+            case 'br':
+                this._lang = br;
+                break;
             default:
                 this._lang = en;
                 break;

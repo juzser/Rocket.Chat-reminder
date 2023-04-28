@@ -23,7 +23,7 @@ export class Reminder {
         user: IUser,
         refMsgId?: string,
     }) {
-        const { lang } = new Lang(user.settings?.preferences?.language);
+        const { lang } = new Lang(this.app.appLanguage);
 
         const whenDateTime = getWhenDateTime({ whenDate: formData.whenDate, whenTime: formData.whenTime, offset: user.utcOffset });
         const triggerTime = whenDateTime.getTime();

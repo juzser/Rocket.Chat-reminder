@@ -19,7 +19,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
     targetType?: JobTargetType;
     refMessage?: IMessage;
 }): Promise<IUIKitModalViewParam> {
-    const { lang } = new Lang(user.settings?.preferences?.language);
+    const { lang } = new Lang(app.appLanguage);
 
     const block = modify.getCreator().getBlockBuilder();
 

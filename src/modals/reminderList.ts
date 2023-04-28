@@ -16,7 +16,7 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
     modify: IModify;
     status?: 'active' | 'finished' | 'paused';
 }): Promise<IUIKitModalViewParam> {
-    const { lang } = new Lang(user.settings?.preferences?.language);
+    const { lang } = new Lang(app.appLanguage);
 
     const block = modify.getCreator().getBlockBuilder();
 
@@ -46,7 +46,7 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
         });
 
         pausedJobs.forEach((job, index) => {
-            generateJobBlock({ lang, block, job, timeOffset: user.utcOffset });
+            generateJobBlock({ app, lang, block, job, timeOffset: user.utcOffset });
         });
     }
 
@@ -63,7 +63,7 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
             ),
         });
         jobList.forEach((job, index) => {
-            generateJobBlock({ lang, block, job, timeOffset: user.utcOffset });
+            generateJobBlock({ app, lang, block, job, timeOffset: user.utcOffset });
         });
     }
 
@@ -77,7 +77,8 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
     };
 }
 
-function generateJobBlock({ lang, block, job, timeOffset }: {
+function generateJobBlock({ app, lang, block, job, timeOffset }: {
+    app: AppClass;
     lang: Record<string, any>;
     block: BlockBuilder;
     job: IJob;
@@ -100,12 +101,12 @@ function generateJobBlock({ lang, block, job, timeOffset }: {
             break;
         case JobType.WEEKLY:
             repeatLabel = lang.reminder.createModal.repeat_options.weekly;
-            const weekday = getWeekDayName(job.whenDate);
+            const weekday = getWeekDayName(app, job.whenDate);
             when = `${hour}:${minute} - ${weekday}`;
             break;
         case JobType.BIWEEKLY:
             repeatLabel = lang.reminder.createModal.repeat_options.biweekly;
-            const biweekday = getWeekDayName(job.whenDate);
+            const biweekday = getWeekDayName(app, job.whenDate);
             when = `${hour}:${minute} - ${biweekday}`;
             break;
         case JobType.MONTHLY:

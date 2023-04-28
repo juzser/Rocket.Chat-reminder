@@ -18,7 +18,7 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
     room: IRoom;
     refMsg?: IMessage;
 }) {
-    const { lang } = new Lang(owner.settings?.preferences?.language);
+    const { lang } = new Lang(app.appLanguage);
 
     let caption = lang.reminder.message.caption_self;
 
