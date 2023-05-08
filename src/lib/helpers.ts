@@ -324,22 +324,16 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
 }): Date {
     // Calculate the next run base on the last run
     // But the time should be correct as whenDate & whenTime
-    let nextRunAt = getWhenDateTime({ whenDate, whenTime, offset });
+    const firstRunAt = getWhenDateTime({ whenDate, whenTime, offset });
+    const firstRunTimestamp = firstRunAt.getTime();
+
     const currentDate = new Date();
-
-    const currentTimestamp = currentDate.getTime() + 60 * 1000; // Add 1 minutes to process
-
-    nextRunAt.setFullYear(currentDate.getFullYear());
-    nextRunAt.setMonth(currentDate.getMonth());
+    const currentTimestamp = currentDate.getTime();
 
     // Get next run base on the current time
     if (type === JobType.DAILY || type === JobType.WEEKDAYS) {
-        nextRunAt.setDate(currentDate.getDate());
-
-        // If the time is passed, then wait until next day
-        if (currentTimestamp > nextRunAt.getTime()) {
-            nextRunAt.setDate(currentDate.getDate() + 1);
-        }
+        const alpha = (currentTimestamp - firstRunTimestamp) % (24 * 60 * 60 * 1000);
+        const nextRunAt = new Date(currentTimestamp + (24 * 60 * 60 * 1000 - alpha));
 
         if (type === JobType.WEEKDAYS) {
             // Skip weekend
@@ -352,32 +346,22 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
     }
 
     if (type === JobType.WEEKLY) {
-        const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
-
-        nextRunAt.setDate(weekDay);
-
-        // If the time is passed, then wait until next week
-        if (currentTimestamp > nextRunAt.getTime()) {
-            nextRunAt.setDate(weekDay + 7);
-        }
-
-        return nextRunAt;
+        // Get the next run timestamp base on the first run timestamp
+        // The next run time will be triggered in current week
+        const alpha = (currentTimestamp - firstRunTimestamp) % (7 * 24 * 60 * 60 * 1000);
+        return new Date(currentTimestamp + (7 * 24 * 60 * 60 * 1000 - alpha));
     }
 
     if (type === JobType.BIWEEKLY) {
-        const weekDay = currentDate.getDate() - currentDate.getDay() + nextRunAt.getDay();
-
-        nextRunAt.setDate(weekDay);
-
-        // If the time is passed, then wait until next 2 weeks
-        if (currentTimestamp > nextRunAt.getTime()) {
-            nextRunAt.setDate(weekDay + 14);
-        }
-
-        return nextRunAt;
+        const alpha = (currentTimestamp - firstRunTimestamp) % (14 * 24 * 60 * 60 * 1000);
+        return new Date(currentTimestamp + (14 * 24 * 60 * 60 * 1000 - alpha));
     }
 
     if (type === JobType.MONTHLY) {
+        const nextRunAt = new Date(firstRunAt);
+        nextRunAt.setMonth(currentDate.getMonth());
+        nextRunAt.setFullYear(currentDate.getFullYear());
+
         if (currentTimestamp > nextRunAt.getTime()) {
             nextRunAt.setMonth(currentDate.getMonth() + 1);
         }
@@ -385,7 +369,7 @@ export function getNextRunAt({ type, whenDate, whenTime, offset }: {
         return nextRunAt;
     }
 
-    return nextRunAt;
+    return firstRunAt;
 }
 
 /**
