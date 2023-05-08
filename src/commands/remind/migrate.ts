@@ -58,6 +58,9 @@ export async function MigrateCommand({ app, context, read, persis, modify }: {
                 persis,
                 data: newJobData,
             });
+
+            // purge cache
+            app.jobsCache.purge(job.user);
         }
     }
 

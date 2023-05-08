@@ -10,7 +10,6 @@ import { openListModal } from '../commands/remind/list';
 import { IJob, JobStatus, JobTargetType } from '../interfaces/IJob';
 import { reminderCreate } from '../modals/reminderCreate';
 import { reminderList } from '../modals/reminderList';
-import { getReminders } from '../services/reminder';
 
 export class ExecuteBlockAction {
     constructor(
