@@ -35,6 +35,15 @@ If you need English version, just let me know, I prepared translation feature, s
 To get users or channels list, you have to go to **Settings** then change the `Default Channel` to your general channel name.
 Then disable ~> re-enable the app to get effect.
 
+## Migration
+
+The migration command to migrate if the schedule jobs are missing or the time is not correct.
+Only available for admin users.
+
+```bash
+/cukoo-remind migrate
+```
+
 ## Translation
 
 To translation the app, you have to pull the repo to your local.
