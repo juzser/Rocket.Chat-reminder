@@ -32,7 +32,7 @@ export class ExecuteBlockAction {
 
         switch (actionId) {
             case 'targetType': {
-                const refMsgId = container.id.split('--')[2];
+                const refMsgId = container.id.split('--')[2] || '';
                 const refMsg = await this.read.getMessageReader().getById(refMsgId);
 
                 const modal = await reminderCreate({
