@@ -1,0 +1,22 @@
+{
+    "remind_params": "Liste de rappels, création de rappel",
+    "remind_desc": "Créer un rappel pour vous ou pour d'autres utilisateurs.",
+    "bot_username": "Robot de rappel",
+    "bot_username_desc": "Le nom qui sera utilisé par le robot pour envoyer les rappels.",
+    "bot_name": "Auteur du message de rappel",
+    "bot_name_desc": "L'affichage du nom pour le robot qui sera utilisé pour l'envoi de rappels.",
+    "default_channel": "Canal par défaut",
+    "default_channel_desc": "Le canal pour obtenir la liste de membres qui sera utilisé comme canal par défaut.",
+    "enable_remindto_channel": "Activer la création de rappels par canal",
+    "enable_remindto_channel_desc": "Donne la possibilité d'envoyer des rappels à des canaux.",
+    "max_users_remind": "Utilisateurs maxi à notifier",
+    "max_users_remind_desc": "0 pour désactiver. Le maximum d'utilisateurs à notifier pour un seul rappel.",
+    "reminder-trigger-label": "⏰ Rappel",
+    "reminder-trigger-message-label": "⏰  Créer rappel",
+    "app_language": "Langue",
+    "app_language_desc": "La langue à utiliser pour l'application.",
+    "app_language_en": "English",
+    "app_language_vi": "Tiếng Việt",
+    "app_language_br": "Brazilian (Portuguese)",
+    "app_language_fr": "Français"
+}
