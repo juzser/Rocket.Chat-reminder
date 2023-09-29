@@ -1,4 +1,4 @@
-export const en = {
+export const fr = {
     common: {
         confirm: 'Confirmer',
         cancel: 'Annuler',
