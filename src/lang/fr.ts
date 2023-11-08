@@ -1,0 +1,88 @@
+export const fr = {
+    common: {
+        confirm: 'Confirmer',
+        cancel: 'Annuler',
+        close: 'Fermer',
+    },
+    date: {
+        day: 'Jour',
+        monday: 'Lundi',
+        tuesday: 'Mardi',
+        wednesday: 'Mercredi',
+        thursday: 'Jeudi',
+        friday: 'Vendredi',
+        saturday: 'Samerdi',
+        sunday: 'Dimanche',
+    },
+    reminder: {
+        createModal: {
+            heading: 'Créer rappel',
+            ref_message_caption: (channel?: string) => `Vous créez un rappel pour le message ${ channel ? ` du canal **#${channel}**` : '' }:`,
+            ref_message_author: (author: string) => `**Auteur**: ${author}`,
+            ref_message_content: (content: string) => `**Message**: ${content || 'Erreur affichage message...'}`,
+            when: 'Rappel le',
+            time: 'Heure',
+            repeat: 'Répéter',
+            repeat_options: {
+                once: 'Une fois',
+                daily: 'Quotidien',
+                weekly: 'Hebdomadaire',
+                biweekly: 'Bi Hebdo (2 semaines)',
+                weekdays: 'Jours semaine (Lun-Ven)',
+                weekdays_pure: 'Weekdays',
+                monthly: 'Mensuel',
+            },
+            message: 'Message',
+            message_placeholder: 'La fête commence ! :tada: :sushi:',
+            remind_to: 'Rappel à',
+            target_type: 'Canal ou utilisateurs',
+            target_type_options: {
+                self: 'Vous-même',
+                user: 'Autres utilisateurs',
+                channel: 'Canal',
+            },
+            target_user: (max: number) => `Receivers (Max: ${max} utilisateurs)`,
+            target_user_placeholder: (max: number) => `Max ${max} utilisateurs`,
+            target_channel: 'Canal',
+            target_channel_placeholder: 'Nom du canal',
+            create_success: 'Rappel créé avec succès ! :tada: Patientez en attendant le rappel.',
+        },
+
+        listModal: {
+            heading: 'Lister rappels',
+            caption_active: (count: number, paused: number) => `Vous avez **${count}** rappel(s) actif(s)${paused ? ` et **${paused}** rappel(s) inactif(s)` : ''}.`,
+            caption_finished: (count: number) => `Vous avez **${count}** rappel(s) terminé(s).`,
+            no_reminders: 'Créer un rappel en tapant `/cukoo-remind`',
+            list_active: ':fire: **Rappels actifs:**',
+            list_paused: ':pause_button: **Rappels en pause :**',
+            list_finished: ':white_check_mark: **Rappels terminés :**',
+            view_finished: 'Voir rappels terminés',
+            view_active: 'Voir rappels actifs',
+        },
+
+        jobBlock: {
+            title_once: (time: string, target?: string) => `:small_blue_diamond: Rappel ${target ? target : 'moi'} à *${time}*`,
+            title_repeat: (time: string, repeat: string, target?: string) => `:small_orange_diamond: Rappel ${target ? target : 'moi'} à *${time}* (${repeat})`,
+            next_run_at: (time: string) => `Prochain rappel à : *${time}*`,
+            message: 'Message',
+            button_pause: 'Pause',
+            button_resume: ':arrow_forward: Reprendre',
+            button_cancel: 'Annuler',
+            button_remove: 'Supprimer',
+        },
+
+        message: {
+            caption_self: ':rotating_light: Vous avez demandé un rappel',
+            caption_user: (owner: string) => `:rotating_light: @${owner} a demandé de vous rappeler`,
+            caption_channel: (owner: string) => `:rotating_light: @${owner} a demandé un rappel pour ce canal`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` à propos du message${channel ? ` de #${channel}` : ''}`,
+            title_ref_msg: (time: string, channel?: string) => `Message${channel ? ` dans #${channel}` : ''} envoyé à ${time}`,
+        },
+
+        messageAction: {
+            caption: '- Créer un rappel : `/cukoo-remind create`\n- Liste des rappels : `/cukoo-remind list` \n\n Vous pouvez aussi créer un rappel depuis un message, en cliquant le bouton `⏰ Créer rappel` dans le menu action du message.',
+            button_create: 'Créer rappel',
+            button_list: 'Liste des rappels',
+        },
+    },
+};

@@ -36,6 +36,10 @@ export const settings: Array<ISetting> = [
             {
                 key: 'br',
                 i18nLabel: 'app_language_br',
+            },
+            {
+                key: 'fr',
+                i18nLabel: 'app_language_fr',
             }
         ],
         required: true,

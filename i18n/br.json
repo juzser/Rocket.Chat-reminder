@@ -17,5 +17,6 @@
     "app_language_desc": "The language to use for the app.",
     "app_language_en": "English",
     "app_language_vi": "Tiếng Việt",
-    "app_language_br": "Brazilian (Portuguese)"
+    "app_language_br": "Brazilian (Portuguese)",
+    "app_language_fr": "Français"
 }
