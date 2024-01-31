@@ -8,7 +8,7 @@ import { ListCommand } from './list';
 import { MigrateCommand } from './migrate';
 
 export class ReminderCommand implements ISlashCommand {
-    public command = 'cukoo-remind';
+    public command = 'cukoo';
     public i18nParamsExample = 'remind_params';
     public i18nDescription = 'remind_desc';
     public providesPreview = false;
