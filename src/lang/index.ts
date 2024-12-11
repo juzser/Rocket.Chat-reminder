@@ -23,9 +23,9 @@ export class Lang {
             case 'fr':
                 this._lang = fr;
                 break;
-	    case 'de':
-		this._lang = de;
-	        break;
+	        case 'de':
+		        this._lang = de;
+	            break;
             default:
                 this._lang = en;
                 break;
