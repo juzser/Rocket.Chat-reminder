@@ -2,6 +2,7 @@ import { vi } from './vi';
 import { en } from './en';
 import { br } from './br';
 import { fr } from './fr';
+import { de } from './de';
 
 // export const lang = vi;
 
@@ -22,6 +23,9 @@ export class Lang {
             case 'fr':
                 this._lang = fr;
                 break;
+	    case 'de':
+		this._lang = de;
+	        break;
             default:
                 this._lang = en;
                 break;
