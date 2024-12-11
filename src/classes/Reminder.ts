@@ -338,7 +338,10 @@ export class Reminder {
             targetChannel,
         } = formData;
 
-        const currentTime = new Date().getTime();
+        const currentDate = new Date();
+        const offset = currentDate.getTimezoneOffset();
+
+        const currentTime = new Date(currentDate.setMinutes(currentDate.getMinutes() - offset)).getTime();
 
         // Check if date empty or invalid
         // dd/mm/yyyy
