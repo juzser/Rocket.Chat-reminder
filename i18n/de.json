@@ -1,0 +1,23 @@
+{
+    "remind_params": "reminder list, reminder create",
+    "remind_desc": "Erstelle Erinnerungen für dich selber und andere Nutzer:innen.",
+    "bot_username": "Erinnerungen Bot",
+    "bot_username_desc": "Der Username des Bots, der für die Erinnerungen verwendet wird.",
+    "bot_name": "Erinnerungen Autor:in",
+    "bot_name_desc": "Der Name, unter dem Erinnerungen angezeigt werden.",
+    "default_channel": "Standard-Kanal",
+    "default_channel_desc": "Der Kanal, aus dem die Nutzer:innen-Liste verwendet wird.",
+    "enable_remindto_channel": "Erinnerungen an Kanäle",
+    "enable_remindto_channel_desc": "Aktiviere Erinnerungen an Kanäle.",
+    "max_users_remind": "Max Anzahl an Nutzer:innen für Erinnerung",
+    "max_users_remind_desc": "0 deaktiviert die Einstellung. Die maximale Anzahl an anderen Nutzer:innen, die durch eine Erinnerung erinnert werden.",
+    "reminder-trigger-label": "⏰ Erinnerung",
+    "reminder-trigger-message-label": "⏰  Erstelle Erinnerung",
+    "app_language": "App Sprache",
+    "app_language_desc": "Sprache für die App",
+    "app_language_en": "Englisch",
+    "app_language_vi": "Vietnamesisch",
+    "app_language_br": "Brasilien (Portugiesisch)",
+    "app_language_fr": "Französisch",
+    "app_language_de": "Deutsch"
+}
