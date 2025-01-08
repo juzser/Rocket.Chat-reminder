@@ -40,7 +40,12 @@ export const settings: Array<ISetting> = [
             {
                 key: 'fr',
                 i18nLabel: 'app_language_fr',
-            }
+            },
+	    {
+		key: 'de',
+		i18nLabel: 'app_language_de',
+	    }
+
         ],
         required: true,
         public: false,
