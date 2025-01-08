@@ -53,6 +53,17 @@ Then translate the text in these by your language.
 Update the `src/lang/index.ts`
 Then run `rc-apps deploy ...` to deploy the app to your server.
 
+## Package
+
+1. Install [rc-apps](https://developer.rocket.chat/docs/apps-engine-cli) 
+2. Link dependencies
+    * `npm link typescript`
+    * `npm link @rocket.chat/apps-engine`
+    * `npm link @rocket.chat/ui-kit`
+    * `npm link @rocket.chat/icons`
+    * `npm install @types/node --save-dev`
+3. Package app `rc-apps package`
+
 ---
 
 Feel free to let me know if you have any issue.
