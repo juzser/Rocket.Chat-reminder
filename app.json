@@ -1,6 +1,6 @@
 {
     "id": "f3ff06c9-fa92-44eb-be38-61cafb7b7566",
-    "version": "1.0.7",
+    "version": "1.0.10",
     "requiredApiVersion": "^1.36.0",
     "iconFile": "icon.png",
     "author": {
@@ -10,7 +10,7 @@
     },
     "name": "Cukoo Reminder",
     "nameSlug": "oe-reminder",
-    "classFile": "OeReminderApp.ts",
+    "classFile": "dist/OeReminderApp.js",
     "description": "Advanced FREE reminder app that will remind you what to do. Main features: One time, frequency remind. --- View active, completed reminders. --- Pause/Resume reminders. --- Remind yourself, channel or other users. --- Quote a message to a reminder. --- Easy to use & fully performance optimization. --- AND, it's Opensources. You can feel free to ask me anything via Github repo.",
     "permissions": [
         {
