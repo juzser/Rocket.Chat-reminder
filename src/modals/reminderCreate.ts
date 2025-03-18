@@ -1,9 +1,9 @@
-import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IRead, IUIKitSurfaceViewParam } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { ButtonStyle, IOptionObject } from '@rocket.chat/apps-engine/definition/uikit';
-import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
+import { ButtonStyle, UIKitSurfaceType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
+import { LayoutBlock, Option } from '@rocket.chat/ui-kit';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
 import { Lang } from '../lang/index';
@@ -18,10 +18,10 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
     modify: IModify;
     targetType?: JobTargetType;
     refMessage?: IMessage;
-}): Promise<IUIKitModalViewParam> {
+}): Promise<IUIKitSurfaceViewParam> {
     const { lang } = new Lang(app.appLanguage);
 
-    const block = modify.getCreator().getBlockBuilder();
+    const block: LayoutBlock[] = [];
 
     const userTzOffset = user.utcOffset * 60 * 60 * 1000;
 
@@ -30,50 +30,77 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
     const currentHour = new Date(today + 60 * 60 * 1000).getHours();
     const hours = currentHour < 10 ? `0${currentHour}` : currentHour;
 
-    const repeatOptions = [
+    const repeatOptions: Option[] = [
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.once),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.once,
+            },
             value: JobType.ONCE,
         },
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.daily),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.daily,
+            },
             value: JobType.DAILY,
         },
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.weekdays),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.weekdays,
+            },
             value: JobType.WEEKDAYS,
         },
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.weekly),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.weekly,
+            },
             value: JobType.WEEKLY,
         },
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.biweekly),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.biweekly,
+            },
             value: JobType.BIWEEKLY,
         },
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.repeat_options.monthly),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat_options.monthly,
+            },
             value: JobType.MONTHLY,
         },
     ];
 
-    const targetTypeOptions: IOptionObject[] = [
+    const targetTypeOptions: Option[] = [
         {
-            text: block.newPlainTextObject(lang.reminder.createModal.target_type_options.self),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.target_type_options.self,
+            },
             value: JobTargetType.SELF,
         },
     ];
 
     if (app.maxUserRemind && app.maxUserRemind > 0) {
         targetTypeOptions.push({
-            text: block.newPlainTextObject(lang.reminder.createModal.target_type_options.user),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.target_type_options.users,
+            },
             value: JobTargetType.USER,
         });
     }
 
     if (app.enableRemindChannel) {
         targetTypeOptions.push({
-            text: block.newPlainTextObject(lang.reminder.createModal.target_type_options.channel),
+            text: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.target_type_options.channel,
+            },
             value: JobTargetType.CHANNEL,
         });
     }
@@ -82,75 +109,126 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
     if (refMessage) {
         const roomName = await getRoomName(read, refMessage.room);
 
-        block
-            .addSectionBlock({
-                text: block.newMarkdownTextObject(
-                    lang.reminder.createModal.ref_message_caption(truncate(roomName, 40))
-                ),
-            })
-            .addContextBlock({
-                elements: [
-                    block.newMarkdownTextObject(`
+        block.push({
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.createModal.ref_message_caption(truncate(roomName, 40)),
+            },
+        }, {
+            type: 'context',
+            elements: [
+                {
+                    type: 'mrkdwn',
+                    text: `
                     ${lang.reminder.createModal.ref_message_author(refMessage.sender.username)}
-                    ${lang.reminder.createModal.ref_message_content(truncate(refMessage.text || '', 100))}`),
-                ]
-            })
-            .addDividerBlock();
+                    ${lang.reminder.createModal.ref_message_content(truncate(refMessage.text || '', 100))}`,
+                },
+            ],
+        }, {
+            type: 'divider',
+        });
     }
 
-    block
-        .addInputBlock({
+    block.push({
+        type: 'input',
+        blockId: 'reminderDataBlock',
+        label: {
+            type: 'plain_text',
+            text: lang.reminder.createModal.when,
+        },
+        element: {
+            type: 'datepicker',
+            appId: app.getID(),
             blockId: 'reminderData',
-            label: block.newMarkdownTextObject(`**${lang.reminder.createModal.when}:**`),
-            element: block.newPlainTextInputElement({
-                actionId: 'whenDate',
-                placeholder: block.newPlainTextObject('dd/mm/yyyy'),
-                initialValue: todayFormated,
-            }),
-        })
-        .addInputBlock({
+            actionId: 'whenDate',
+            placeholder: {
+                type: 'plain_text',
+                text: 'dd/mm/yyyy',
+            },
+            initialDate: todayFormated,
+        }
+    }, {
+        type: 'input',
+        blockId: 'reminderDataBlock',
+        label: {
+            type: 'plain_text',
+            text: lang.reminder.createModal.time,
+        },
+        element: {
+            type: 'time_picker',
+            appId: app.getID(),
             blockId: 'reminderData',
-            label: block.newPlainTextObject(lang.reminder.createModal.time),
-            element: block.newPlainTextInputElement({
-                actionId: 'whenTime',
-                placeholder: block.newPlainTextObject('hh:mm'),
-                initialValue: `${hours}:00`,
-            }),
-        })
-        .addInputBlock({
+            actionId: 'whenTime',
+            placeholder: {
+                type: 'plain_text',
+                text: 'hh:mm',
+            },
+            initialTime: `${hours}:00`,
+        }
+    }, {
+        type: 'input',
+        blockId: 'reminderDataBlock',
+        label: {
+            type: 'plain_text',
+            text: lang.reminder.createModal.repeat,
+        },
+        element: {
+            type: 'static_select',
+            appId: app.getID(),
             blockId: 'reminderData',
-            label: block.newPlainTextObject(lang.reminder.createModal.repeat),
-            element: block.newStaticSelectElement({
-                actionId: 'repeat',
-                placeholder: block.newPlainTextObject(lang.reminder.createModal.repeat),
-                initialValue: 'once',
-                options: repeatOptions,
-            }),
-        })
-        .addInputBlock({
+            actionId: 'repeat',
+            placeholder: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.repeat,
+            },
+            initialValue: 'once',
+            options: repeatOptions,
+        },
+    }, {
+        type: 'input',
+        blockId: 'reminderDataBlock',
+        label: {
+            type: 'plain_text',
+            text: lang.reminder.createModal.message,
+        },
+        element: {
+            type: 'plain_text_input',
+            appId: app.getID(),
             blockId: 'reminderData',
-            label: block.newPlainTextObject(lang.reminder.createModal.message),
-            element: block.newPlainTextInputElement({
-                actionId: 'message',
-                placeholder: block.newPlainTextObject(lang.reminder.createModal.message_placeholder),
-                multiline: true,
-            })
-        })
-        .addDividerBlock()
-        .addSectionBlock({
-            text: block.newMarkdownTextObject(`**${lang.reminder.createModal.remind_to}:**`),
-        })
-        .addActionsBlock({
-            blockId: 'reminderData',
-            elements: [
-                block.newStaticSelectElement({
-                    actionId: 'targetType',
-                    placeholder: block.newPlainTextObject(lang.reminder.createModal.target_type),
-                    initialValue: targetType || JobTargetType.SELF,
-                    options: targetTypeOptions,
-                }),
-            ],
-        })
+            actionId: 'message',
+            placeholder: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.message_placeholder,
+            },
+            multiline: true,
+        }
+    }, {
+        type: 'divider',
+    }, {
+        type: 'section',
+        text: {
+            type: 'mrkdwn',
+            text: `**${lang.reminder.createModal.remind_to}:**`,
+        },
+    }, {
+        type: 'actions',
+        blockId: 'reminderData',
+        elements: [
+            {
+                type: 'static_select',
+                appId: app.getID(),
+                blockId: 'reminderData',
+                actionId: 'targetType',
+                placeholder: {
+                    type: 'plain_text',
+                    text: lang.reminder.createModal.target_type,
+                },
+                initialValue: targetType || JobTargetType.SELF,
+                options: targetTypeOptions,
+            },
+        ],
+    });
 
     // Build user list
     if (targetType === JobTargetType.USER) {
@@ -162,41 +240,77 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
 
             const userOptions = getMemberOptions(users);
 
-            block.addInputBlock({
-                blockId: 'reminderData',
-                label: block.newPlainTextObject(lang.reminder.createModal.target_user(app.maxUserRemind)),
-                element: block.newMultiStaticElement({
+            block.push({
+                type: 'input',
+                blockId: 'reminderDataBlock',
+                label: {
+                    type: 'plain_text',
+                    text: lang.reminder.createModal.target_user(app.maxUserRemind),
+                },
+                element: {
+                    type: 'multi_static_select',
+                    appId: app.getID(),
+                    blockId: 'reminderData',
                     actionId: 'targetUsers',
-                    placeholder: block.newPlainTextObject(lang.reminder.createModal.target_user_placeholder(app.maxUserRemind)),
+                    placeholder: {
+                        type: 'plain_text',
+                        text: lang.reminder.createModal.target_user_placeholder(app.maxUserRemind),
+                    },
                     options: userOptions,
-                }),
+                },
             });
         }
     }
 
     if (targetType === JobTargetType.CHANNEL) {
-        block.addInputBlock({
-            blockId: 'reminderData',
-            label: block.newPlainTextObject(lang.reminder.createModal.target_channel_placeholder),
-            element: block.newPlainTextInputElement({
+        block.push({
+            type: 'input',
+            blockId: 'reminderDataBlock',
+            label: {
+                type: 'plain_text',
+                text: lang.reminder.createModal.target_channel_placeholder,
+            },
+            element: {
+                type: 'plain_text_input',
+                appId: app.getID(),
+                blockId: 'reminderData',
                 actionId: 'targetChannel',
-                placeholder: block.newPlainTextObject(`#${app.defaultChannelName}`),
-                // initialValue: `#${app.defaultChannelName}`,
-            }),
+                placeholder: {
+                    type: 'plain_text',
+                    text: `#${app.defaultChannelName}`,
+                },
+            },
         });
     }
 
     return {
+        type: UIKitSurfaceType.MODAL,
         id: `modal-reminder-create--${room.id}${refMessage ? `--${refMessage.id}` : ''}`,
-        title: block.newPlainTextObject(lang.reminder.createModal.heading),
-        submit: block.newButtonElement({
-            text: block.newPlainTextObject(lang.common.confirm),
+        title: {
+            type: 'plain_text',
+            text: lang.reminder.createModal.heading,
+        },
+        submit: {
+            appId: app.getID(),
+            blockId: 'reminderDataSubmit',
+            actionId: 'submit',
+            type: 'button',
+            text: {
+                type: 'plain_text',
+                text: lang.common.confirm,
+            },
             style: ButtonStyle.PRIMARY,
-        }),
-        close: block.newButtonElement({
-            text: block.newPlainTextObject(lang.common.cancel),
-        }),
-        blocks: block.getBlocks(),
-
+        },
+        close: {
+            appId: app.getID(),
+            blockId: 'reminderDataCancel',
+            actionId: 'cancel',
+            type: 'button',
+            text: {
+                type: 'plain_text',
+                text: lang.common.cancel,
+            },
+        },
+        blocks: block,
     };
 }

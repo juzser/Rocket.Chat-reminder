@@ -1,13 +1,13 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessage, IMessageAttachment } from '@rocket.chat/apps-engine/definition/messages';
 import { IRoom, RoomType } from '@rocket.chat/apps-engine/definition/rooms';
-import { BlockBuilder, IOptionObject, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as appClass } from '../../OeReminderApp';
 import { JobType } from '../interfaces/IJob';
 import { Lang } from '../lang/index';
 import { AppConfig } from './config';
+import { LayoutBlock, Option } from '@rocket.chat/ui-kit';
 
 /**
  * Sends a message using bot
@@ -27,7 +27,7 @@ export async function sendMessage({ app, modify, room, message, attachments, blo
     room: IRoom,
     message?: string,
     attachments?: Array<IMessageAttachment>,
-    blocks?: BlockBuilder,
+    blocks?: LayoutBlock[],
     avatar?: string,
     group?: boolean,
 }): Promise<string | undefined> {
@@ -71,7 +71,7 @@ export async function notifyUser({ app, message, user, room, modify, blocks, att
     room: IRoom,
     modify: IModify,
     attachments?: Array<IMessageAttachment>,
-    blocks?: BlockBuilder,
+    blocks?: LayoutBlock[],
 }): Promise<void> {
     const msg = modify.getCreator().startMessage()
         .setSender(app.botUser)
@@ -115,7 +115,7 @@ export async function updateMessage({ app, modify, messageId, sender, message, a
     sender?: IUser,
     message?: string,
     attachments?: Array<IMessageAttachment>,
-    blocks?: BlockBuilder,
+    blocks?: LayoutBlock[],
 }): Promise<void> {
     const msg = await modify.getUpdater().message(messageId, sender ? sender : app.botUser);
     msg.setEditor(msg.getSender());
@@ -201,15 +201,15 @@ export async function getMembersByRoom(app: appClass, room: IRoom, read: IRead):
  *
  * @param members
  */
-export function getMemberOptions(members: Array<IUser>): Array<IOptionObject> {
-    const targets: Array<IOptionObject> = members
+export function getMemberOptions(members: Array<IUser>): Array<Option> {
+    const targets: Array<Option> = members
         .sort((a, b) => {
             return a.username.toUpperCase() < b.username.toUpperCase() ? -1 : 1;
         })
         .map((target) => {
             return {
                 text: {
-                    type: TextObjectType.PLAINTEXT,
+                    type: 'plain_text',
                     text: target.username,
                 },
                 value: target.username,
@@ -273,7 +273,8 @@ export function getWhenDateTime({ whenDate, whenTime, offset }: {
     whenTime: string,
     offset: number,
 }) {
-    const [day, month, year] = whenDate.split('/');
+    const [year, month, day] = whenDate.split('-');
+
     const [hour, minute] = whenTime.split(':');
 
     const whenDateTime = new Date(

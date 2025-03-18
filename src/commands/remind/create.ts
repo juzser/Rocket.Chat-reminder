@@ -60,5 +60,5 @@ export async function openCreateModal({ app, user, room, read, modify, triggerId
         refMessage,
     });
 
-    await modify.getUiController().openModalView(modal, { triggerId }, user);
+    await modify.getUiController().openSurfaceView(modal, { triggerId }, user);
 }

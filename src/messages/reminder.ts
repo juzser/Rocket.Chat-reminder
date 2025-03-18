@@ -61,11 +61,6 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
 
     caption += ':';
 
-    // const attachment: IMessageAttachment = {
-    //     color: AppConfig.attachmentColor,
-    //     text: jobData.message,
-    // };
-
     caption += `\n\n${jobData.message}`;
 
     if (jobData.message.startsWith('[Pure]')) {

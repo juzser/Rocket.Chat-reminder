@@ -344,8 +344,8 @@ export class Reminder {
         const currentTime = new Date(currentDate.setMinutes(currentDate.getMinutes() - offset)).getTime();
 
         // Check if date empty or invalid
-        // dd/mm/yyyy
-        if (!whenDate || !whenDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        // yyyy-mm-dd
+        if (!whenDate || !whenDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
             return { whenDate: 'Invalid date' };
         }
 

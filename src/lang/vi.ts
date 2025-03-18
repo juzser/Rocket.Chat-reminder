@@ -62,8 +62,8 @@ export const vi = {
         },
 
         jobBlock: {
-            title_once: (time: string, target?: string) => `:small_blue_diamond: Nhắc ${target ? target : 'bạn'} vào lúc *${time}*`,
-            title_repeat: (time: string, repeat: string, target?: string) => `:small_orange_diamond: Nhắc ${target ? target : 'bạn'} vào lúc *${time}* ${repeat}`,
+            title_once: (time: string, target?: string) => `🔹 Nhắc ${target ? target : 'bạn'} vào lúc *${time}*`,
+            title_repeat: (time: string, repeat: string, target?: string) => `🔸 Nhắc ${target ? target : 'bạn'} vào lúc *${time}* ${repeat}`,
             next_run_at: (time: string) => `Lần nhắc tiếp theo: *${time}*`,
             message: 'Nội dung',
             button_finished: 'Hoàn thành',
