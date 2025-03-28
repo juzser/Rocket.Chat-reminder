@@ -65,7 +65,7 @@ export class Reminder {
         }
 
         // Convert time to agenda format
-        const when = new Date(whenDateTime).toISOString();
+        const when = new Date(whenDateTime);
         const createdAt = new Date().getTime();
 
         // Create job
@@ -298,7 +298,7 @@ export class Reminder {
             if (nextRunAt) {
                 const nextJobId = await modify.getScheduler().scheduleOnce({
                     id: AppConfig.jobKey,
-                    when: nextRunAt.toISOString(),
+                    when: nextRunAt,
                     data: { id: `${user.username}-${jobData.createdAt}` },
                 });
 

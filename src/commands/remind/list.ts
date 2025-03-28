@@ -41,5 +41,5 @@ export async function openListModal({ app, user, modify, triggerId }: {
         status: 'active',
     });
 
-    await modify.getUiController().openModalView(modal, { triggerId }, user);
+    await modify.getUiController().openSurfaceView(modal, { triggerId }, user);
 }

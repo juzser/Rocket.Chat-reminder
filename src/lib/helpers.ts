@@ -239,14 +239,16 @@ export function convertTimestampToDate(timestamp: number): string {
  * @returns timestamp
  * @throws Error if date is invalid
  */
-export function convertDateToTimestamp(date: string): number {
-    const dateParts = date.split('/');
+export function convertDateToTimestamp(app: appClass, date: string): number {
+    const dateParts = date.split('-');
+
     if (dateParts.length !== 3) {
         throw new Error('Invalid date format');
     }
-    const day = parseInt(dateParts[0]);
+
+    const day = parseInt(dateParts[2]);
     const month = parseInt(dateParts[1]) - 1;
-    const year = parseInt(dateParts[2]);
+    const year = parseInt(dateParts[0]);
     return new Date(year, month, day).getTime();
 }
 
@@ -292,7 +294,7 @@ export function getWhenDateTime({ whenDate, whenTime, offset }: {
  * Get week day name from lang
  */
 export function getWeekDayName(app: appClass, date: string): string {
-    const ts = convertDateToTimestamp(date);
+    const ts = convertDateToTimestamp(app, date);
     const day = new Date(ts).getDay();
 
     const { lang } = new Lang(app.appLanguage);

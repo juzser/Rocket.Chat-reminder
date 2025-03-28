@@ -144,9 +144,8 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
             actionId: 'whenDate',
             placeholder: {
                 type: 'plain_text',
-                text: 'dd/mm/yyyy',
+                text: 'yyyy-mm-dd',
             },
-            initialDate: todayFormated,
         }
     }, {
         type: 'input',
