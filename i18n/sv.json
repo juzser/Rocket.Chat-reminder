@@ -1,0 +1,23 @@
+{
+    "remind_params": "reminder list, reminder create",
+    "remind_desc": "Skapa påminnelser för dig själv och andra användare.",
+    "bot_username": "Påminnelsebot",
+    "bot_username_desc": "Användarnamnet på botten som kommer att användas för att skicka påminnelser.",
+    "bot_name": "Författare av påminnelsemeddelande",
+    "bot_name_desc": "Namnet som visas för botten som kommer att användas för att skicka påminnelser.",
+    "default_channel": "Standardkanal",
+    "default_channel_desc": "Kanalen för att hämta medlemslista och använda som standardkanalalternativ.",
+    "enable_remindto_channel": "Aktivera skapa påminnelse till kanal",
+    "enable_remindto_channel_desc": "Aktivera möjligheten att skicka påminnelse till kanaler.",
+    "max_users_remind": "Max antal andra användare att påminna",
+    "max_users_remind_desc": "0 för att inaktivera. Det maximala antalet andra användare att påminna i en enda påminnelse.",
+    "reminder-trigger-label": "⏰ Påminnelse",
+    "reminder-trigger-message-label": "⏰  Skapa påminnelse",
+    "app_language": "Appspråk",
+    "app_language_desc": "Språket som ska användas för appen.",
+    "app_language_en": "Engelska",
+    "app_language_vi": "Vietnamesiska",
+    "app_language_br": "Brasiliansk (Portugisiska)",
+    "app_language_fr": "Franska",
+    "app_language_sv": "Svenska"
+}
