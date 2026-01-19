@@ -132,7 +132,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
 
     block.push({
         type: 'input',
-        blockId: 'reminderDataBlock',
+        blockId: 'reminderData',
         label: {
             type: 'plain_text',
             text: lang.reminder.createModal.when,
@@ -149,7 +149,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
         }
     }, {
         type: 'input',
-        blockId: 'reminderDataBlock',
+        blockId: 'reminderData',
         label: {
             type: 'plain_text',
             text: lang.reminder.createModal.time,
@@ -167,7 +167,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
         }
     }, {
         type: 'input',
-        blockId: 'reminderDataBlock',
+        blockId: 'reminderData',
         label: {
             type: 'plain_text',
             text: lang.reminder.createModal.repeat,
@@ -186,7 +186,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
         },
     }, {
         type: 'input',
-        blockId: 'reminderDataBlock',
+        blockId: 'reminderData',
         label: {
             type: 'plain_text',
             text: lang.reminder.createModal.message,
@@ -241,7 +241,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
 
             block.push({
                 type: 'input',
-                blockId: 'reminderDataBlock',
+                blockId: 'reminderData',
                 label: {
                     type: 'plain_text',
                     text: lang.reminder.createModal.target_user(app.maxUserRemind),
@@ -264,7 +264,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
     if (targetType === JobTargetType.CHANNEL) {
         block.push({
             type: 'input',
-            blockId: 'reminderDataBlock',
+            blockId: 'reminderData',
             label: {
                 type: 'plain_text',
                 text: lang.reminder.createModal.target_channel_placeholder,

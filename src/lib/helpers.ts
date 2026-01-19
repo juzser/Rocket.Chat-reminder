@@ -275,7 +275,15 @@ export function getWhenDateTime({ whenDate, whenTime, offset }: {
     whenTime: string,
     offset: number,
 }) {
-    const [year, month, day] = whenDate.split('-');
+    let whenDateFormatted = whenDate;
+
+    if (whenDate.includes('/')) {
+        const [day, month, year] = whenDate.split('/');
+        whenDateFormatted = `${year}-${parseInt(month, 10) < 10 ? `0${month}` : month}-${parseInt(day, 10) < 10 ? `0${day}` : day}`;
+    }
+
+    // whenDate = 'yyyy-mm-dd'
+    const [year, month, day] = whenDateFormatted.split('-');
 
     const [hour, minute] = whenTime.split(':');
 

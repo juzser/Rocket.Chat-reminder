@@ -92,7 +92,7 @@ export class Reminder {
             createdAt,
             user: user.id,
             room: room.id,
-            type: formData.repeat,
+            type: formData.repeat || JobType.ONCE,
             message: formData.message,
             status: JobStatus.ACTIVE,
             whenDate: formData.whenDate,
