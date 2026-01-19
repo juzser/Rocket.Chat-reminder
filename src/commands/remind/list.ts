@@ -19,7 +19,7 @@ export async function ListCommand({ app, context, read, persis, modify, params }
     const triggerId = context.getTriggerId();
 
     if (triggerId) {
-        openListModal({ app, user: context.getSender(), modify, triggerId });
+        await openListModal({ app, user: context.getSender(), modify, triggerId });
     }
 }
 
@@ -32,6 +32,8 @@ export async function openListModal({ app, user, modify, triggerId }: {
     const activeJobs = await app.jobsCache.getOnUser(JobStatus.ACTIVE, user.id);
     const pausedJobs = await app.jobsCache.getOnUser(JobStatus.PAUSED, user.id);
 
+    app.getLogger().info(`Found ${ activeJobs.length } active jobs and ${ pausedJobs.length } paused jobs for user ${ user.username }`);
+
     const modal = await reminderList({
         app,
         jobList: activeJobs,
@@ -41,5 +43,5 @@ export async function openListModal({ app, user, modify, triggerId }: {
         status: 'active',
     });
 
-    await modify.getUiController().openModalView(modal, { triggerId }, user);
+    await modify.getUiController().openSurfaceView(modal, { triggerId }, user);
 }

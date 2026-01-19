@@ -2,9 +2,9 @@ import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definitio
 import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 
 import { OeReminderApp as AppClass } from '../../../OeReminderApp';
-import { JobStatus, JobType } from '../../interfaces/IJob';
+import { JobStatus } from '../../interfaces/IJob';
 import { AppConfig } from '../../lib/config';
-import { getNextRunAt, getWhenDateTime, notifyUser } from '../../lib/helpers';
+import { getNextRunAt, notifyUser } from '../../lib/helpers';
 import { getReminders, setReminder } from '../../services/reminder';
 
 // Open modal to request time off
@@ -25,6 +25,10 @@ export async function MigrateCommand({ app, context, read, persis, modify }: {
     const allJobs = await getReminders({ read });
     const jobs = allJobs.filter((j) => j.status === JobStatus.ACTIVE);
 
+    app.getLogger().log(`Migrating ${jobs.length} jobs`);
+
+    await modify.getScheduler().cancelAllJobs();
+
     for (const job of jobs) {
         const newJobData = { ...job };
         const user = await read.getUserReader().getById(job.user);
@@ -32,9 +36,17 @@ export async function MigrateCommand({ app, context, read, persis, modify }: {
             continue;
         }
 
+        app.getLogger().log(`Migrating job ${job.jobId} for user ${user.username}`);
+
+        const whenDate = job.whenDate.includes('/')
+            ? job.whenDate.split('/').reverse().join('-')
+            : job.whenDate;
+
+        app.getLogger().log(`When date: ${whenDate}`);
+
         const nextRunAt = getNextRunAt({
             type: job.type,
-            whenDate: job.whenDate,
+            whenDate,
             whenTime: job.whenTime,
             offset: user.utcOffset,
         });
@@ -45,13 +57,19 @@ export async function MigrateCommand({ app, context, read, persis, modify }: {
 
             const nextJobId = await modify.getScheduler().scheduleOnce({
                 id: AppConfig.jobKey,
-                when: nextRunAt.toISOString(),
+                when: nextRunAt,
                 data: { id: `${user.username}-${job.createdAt}` },
             });
 
             if (nextJobId) {
                 newJobData.jobId = nextJobId;
-                newJobData.nextRunAt = nextRunAt.getTime();
+                newJobData.whenDate = whenDate;
+
+                if (job.type !== 'once') {
+                    newJobData.nextRunAt = nextRunAt.getTime();
+                } else {
+                    newJobData.nextRunAt = undefined;
+                }
             }
 
             await setReminder({
