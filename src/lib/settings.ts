@@ -19,7 +19,7 @@ export const settings: Array<ISetting> = [
         public: false,
         i18nLabel: 'bot_name',
         i18nDescription: 'bot_name_desc',
-    },
+    },  
     {
         id: 'app_language',
         type: SettingType.SELECT,
@@ -40,6 +40,10 @@ export const settings: Array<ISetting> = [
             {
                 key: 'fr',
                 i18nLabel: 'app_language_fr',
+            },
+            {
+                key: 'sv',
+                i18nLabel: 'app_language_sv',
             }
         ],
         required: true,
