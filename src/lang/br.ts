@@ -52,7 +52,7 @@ export const br = {
             heading: 'Listar lembretes',
             caption_active: (count: number, paused: number) => `Você tem um total de **${count}** lembrete(s) ativo(s)${paused ? ` e **${paused}** lembrete(s) pausado(s)` : ''}.`,
             caption_finished: (count: number) => `Você tem **${count}** lembrete(s) já realizado(s).`,
-            no_reminders: 'Crie um novo lembrete digitando `/cukoo-remind`',
+            no_reminders: 'Crie um novo lembrete digitando `/remind`',
             list_active: ':fire: **Lembretes Ativos:**',
             list_paused: ':pause_button: **Lembretes pausados:**',
             list_finished: ':white_check_mark: **Lembretes Concluidos:**',
@@ -80,7 +80,7 @@ export const br = {
         },
 
         messageAction: {
-            caption: '- Criar lembrete: `/cukoo-remind create`\n- Visualizar lista de lembretes: `/cukoo-remind list` \n\n Você também pode criar um lembrete para citar uma mensagem, clicando no botão `⏰ Criar lembrete` no menu de ação ao lado de uma mensagem.',
+            caption: '- Criar lembrete: `/remind create`\n- Visualizar lista de lembretes: `/remind list` \n\n Você também pode criar um lembrete para citar uma mensagem, clicando no botão `⏰ Criar lembrete` no menu de ação ao lado de uma mensagem.',
             button_create: 'Criar lembrete',
             button_list: 'Visualizar lista de lembretes',
         },

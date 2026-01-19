@@ -1,30 +1,47 @@
-import { IModify } from "@rocket.chat/apps-engine/definition/accessors";
-import { BlockBuilder, ButtonStyle } from "@rocket.chat/apps-engine/definition/uikit";
+import { ButtonStyle } from "@rocket.chat/apps-engine/definition/uikit";
+import { LayoutBlock } from "@rocket.chat/ui-kit";
 
 import { OeReminderApp as AppClass } from "../../OeReminderApp";
 import { Lang } from "../lang/index";
 
-export async function ReminderActionsMessage({ app, block }: {
+export async function ReminderActionsMessage({ app }: {
     app: AppClass;
-    block: BlockBuilder;
-}) {
+}): Promise<LayoutBlock[]> {
     const { lang } = new Lang(app.appLanguage);
 
-    block.addSectionBlock({
-        text: block.newMarkdownTextObject(lang.reminder.messageAction.caption),
-    });
-
-    block.addActionsBlock({
-        elements: [
-            block.newButtonElement({
-                text: block.newPlainTextObject(lang.reminder.messageAction.button_create),
-                actionId: 'reminder-create',
-                style: ButtonStyle.PRIMARY,
-            }),
-            block.newButtonElement({
-                text: block.newPlainTextObject(lang.reminder.messageAction.button_list),
-                actionId: 'reminder-list',
-            }),
-        ],
-    });
+    return [
+        {
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.message.caption,
+            },
+        },
+        {
+            type: 'actions',
+            elements: [
+                {
+                    type: 'button',
+                    text: {
+                        type: 'plain_text',
+                        text: lang.reminder.messageAction.button_create,
+                    },
+                    appId: app.getID(),
+                    blockId: 'reminderActions',
+                    actionId: 'reminder-create',
+                    style: ButtonStyle.PRIMARY,
+                },
+                {
+                    type: 'button',
+                    text: {
+                        type: 'plain_text',
+                        text: lang.reminder.messageAction.button_list,
+                    },
+                    appId: app.getID(),
+                    blockId: 'reminderActions',
+                    actionId: 'reminder-list',
+                },
+            ],
+        }
+    ];
 }

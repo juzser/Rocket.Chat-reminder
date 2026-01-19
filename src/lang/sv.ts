@@ -1,0 +1,88 @@
+export const sv = {
+    common: {
+        confirm: 'Bekräfta',
+        cancel: 'Avbryt',
+        close: 'Stäng',
+    },
+    date: {
+        day: 'Dag',
+        monday: 'Måndag',
+        tuesday: 'Tisdag',
+        wednesday: 'Onsdag',
+        thursday: 'Torsdag',
+        friday: 'Fredag',
+        saturday: 'Lördag',
+        sunday: 'Söndag',
+    },
+    reminder: {
+        createModal: {
+            heading: 'Skapa påminnelse',
+            ref_message_caption: (channel?: string) => `Du skapar påminnelse för meddelande${ channel ? ` från kanal **#${channel}**` : '' }:`,
+            ref_message_author: (author: string) => `**Avsändare**: ${author}`,
+            ref_message_content: (content: string) => `**Meddelande**: ${content || 'Kan inte visa meddelande...'}`,
+            when: 'Påminn kl.',
+            time: 'Tid',
+            repeat: 'Upprepa',
+            repeat_options: {
+                once: 'Ingen upprepning',
+                daily: 'Dagligen',
+                weekly: 'Veckovis',
+                biweekly: 'Varannan vecka (2 veckor)',
+                weekdays: 'Vardagar (Mån-Fre)',
+                weekdays_pure: 'Vardagar',
+                monthly: 'Månadsvis',
+            },
+            message: 'Meddelande',
+            message_placeholder: 'Happy hour börjar! :tada: :sushi:',
+            remind_to: 'Påminn',
+            target_type: 'Kanal eller användare',
+            target_type_options: {
+                self: 'Dig själv',
+                user: 'Andra användare',
+                channel: 'Kanal',
+            },
+            target_user: (max: number) => `Mottagare (Max: ${max} användare)`,
+            target_user_placeholder: (max: number) => `Max ${max} användare`,
+            target_channel: 'Kanal',
+            target_channel_placeholder: 'Kanalnamn',
+            create_success: 'Påminnelse skapad! :tada: Var lugn och vänta på påminnelsen.',
+        },
+
+        listModal: {
+            heading: 'Lista påminnelser',
+            caption_active: (count: number, paused: number) => `Du har totalt **${count}** aktiv(a) påminnelse(r)${paused ? ` och **${paused}** pausad(e) påminnelse(r)` : ''}.`,
+            caption_finished: (count: number) => `Du har totalt **${count}** slutförd(a) påminnelse(r).`,
+            no_reminders: 'Skapa påminnelse genom att skriva `/remind`',
+            list_active: ':fire: **Aktiva påminnelser:**',
+            list_paused: ':pause_button: **Pausade påminnelser:**',
+            list_finished: ':white_check_mark: **Slutförda påminnelser:**',
+            view_finished: 'Visa slutförda påminnelser',
+            view_active: 'Visa aktiva påminnelser',
+        },
+
+        jobBlock: {
+            title_once: (time: string, target?: string) => `:small_blue_diamond: Påminn ${target ? target : 'mig'} kl. *${time}*`,
+            title_repeat: (time: string, repeat: string, target?: string) => `:small_orange_diamond: Påminn ${target ? target : 'mig'} kl. *${time}* (${repeat})`,
+            next_run_at: (time: string) => `Nästa påminnelse kl.: *${time}*`,
+            message: 'Meddelande',
+            button_pause: 'Pausa',
+            button_resume: ':arrow_forward: Återuppta',
+            button_cancel: 'Avbryt',
+            button_remove: 'Ta bort',
+        },
+
+        message: {
+            caption_self: ':rotating_light: Du bad mig påminna dig',
+            caption_user: (owner: string) => `:rotating_light: @${owner} bad mig påminna dig`,
+            caption_channel: (owner: string) => `:rotating_light: @${owner} bad mig påminna denna kanal`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` om meddelandet${channel ? ` från #${channel}` : ''}`,
+            title_ref_msg: (time: string, channel?: string) => `Meddelande${channel ? ` i #${channel}` : ''} skickat kl. ${time}`,
+        },
+
+        messageAction: {
+            caption: '- Skapa påminnelse: `/remind create`\n- Visa påminnelselista: `/remind list` \n\n Du kan också skapa påminnelse för ett meddelande genom att klicka på knappen `⏰ Skapa påminnelse` i åtgärdsmenyn bredvid ett meddelande.',
+            button_create: 'Skapa påminnelse',
+            button_list: 'Visa påminnelselista',
+        },
+    },
+};

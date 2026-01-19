@@ -1,7 +1,7 @@
-import { IModify } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IUIKitSurfaceViewParam } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { BlockBuilder, BlockElementType, ButtonStyle } from '@rocket.chat/apps-engine/definition/uikit';
-import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
+import { ButtonStyle, UIKitSurfaceType } from '@rocket.chat/apps-engine/definition/uikit';
+import { ButtonElement, LayoutBlock } from '@rocket.chat/ui-kit';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
 import { Lang } from '../lang/index';
@@ -15,10 +15,10 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
     user: IUser;
     modify: IModify;
     status?: 'active' | 'finished' | 'paused';
-}): Promise<IUIKitModalViewParam> {
+}): Promise<IUIKitSurfaceViewParam> {
     const { lang } = new Lang(app.appLanguage);
 
-    const block = modify.getCreator().getBlockBuilder();
+    const block: LayoutBlock[] = [];
 
     let caption = '';
     if (!status || status === 'active' || status === 'paused') {
@@ -27,64 +27,97 @@ export async function reminderList({ app, jobList, pausedJobs, user, modify, sta
         caption = lang.reminder.listModal.caption_finished(jobList.length);
     }
 
-    block
-        .addSectionBlock({
-            text: block.newMarkdownTextObject(caption),
-            accessory: {
-                type: BlockElementType.BUTTON,
-                actionId: 'reminder-list-view',
-                text: block.newPlainTextObject(status !== 'finished' ? lang.reminder.listModal.view_finished : lang.reminder.listModal.view_active),
-                value: status !== 'finished' ? 'finished' : 'active',
-            }
-        })
-        .addDividerBlock();
+    block.push({
+        type: 'section',
+        text: {
+            type: 'mrkdwn',
+            text: caption,
+        },
+        accessory: {
+            type: 'button',
+            appId: app.getID(),
+            blockId: 'reminderList',
+            actionId: 'reminder-list-view',
+            text: {
+                type: 'plain_text',
+                text: status !== 'finished' ? lang.reminder.listModal.view_finished : lang.reminder.listModal.view_active,
+            },
+            value: status !== 'finished' ? 'finished' : 'active',
+        }
+    }, {
+        type: 'divider',
+    })
 
     // Paused jobs
     if (pausedJobs && pausedJobs.length > 0) {
-        block.addSectionBlock({
-            text: block.newMarkdownTextObject(lang.reminder.listModal.list_paused),
+        block.push({
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.listModal.list_paused,
+            },
         });
 
         pausedJobs.forEach((job, index) => {
-            generateJobBlock({ app, lang, block, job, timeOffset: user.utcOffset });
+            const subBlocks = generateJobBlock({ app, lang, job, timeOffset: user.utcOffset });
+            block.push(...subBlocks);
         });
     }
 
     // Active jobs
     if (jobList.length === 0) {
-        block.addSectionBlock({
-            text: block.newMarkdownTextObject(lang.reminder.listModal.no_reminders),
+        block.push({
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.listModal.no_reminders,
+            }
         });
     } else {
-        block.addSectionBlock({
-            text: block.newMarkdownTextObject(status === 'finished'
-                ? lang.reminder.listModal.list_finished
-                : lang.reminder.listModal.list_active
-            ),
+        block.push({
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: status === 'finished'
+                    ? lang.reminder.listModal.list_finished
+                    : lang.reminder.listModal.list_active,
+            },
         });
+
         jobList.forEach((job, index) => {
-            generateJobBlock({ app, lang, block, job, timeOffset: user.utcOffset });
+            const subBlocks = generateJobBlock({ app, lang, job, timeOffset: user.utcOffset });
+            block.push(...subBlocks);
         });
     }
 
     return {
+        type: UIKitSurfaceType.MODAL,
         id: 'modal-reminder-list',
-        title: block.newPlainTextObject(lang.reminder.listModal.heading),
-        close: block.newButtonElement({
-            text: block.newPlainTextObject(lang.common.close),
-        }),
-        blocks: block.getBlocks(),
+        title: {
+            type: 'plain_text',
+            text: lang.reminder.listModal.heading,
+        },
+        close: {
+            type: 'button',
+            appId: app.getID(),
+            blockId: 'reminderList',
+            actionId: 'reminder-list-close',
+            text: {
+                type: 'plain_text',
+                text: lang.common.close,
+            }
+        },
+        blocks: block,
     };
 }
 
-function generateJobBlock({ app, lang, block, job, timeOffset }: {
+function generateJobBlock({ app, lang, job, timeOffset }: {
     app: AppClass;
     lang: Record<string, any>;
-    block: BlockBuilder;
     job: IJob;
     timeOffset: number
-}) {
-    const [day, month, year] = job.whenDate.split('/');
+}): LayoutBlock[] {
+    const [year, month, day] = job.whenDate.split('-');
     const [hour, minute] = job.whenTime.split(':');
 
     let when = `${hour}:${minute} - ${day}/${month}`;
@@ -148,69 +181,89 @@ function generateJobBlock({ app, lang, block, job, timeOffset }: {
     }
 
     // Job content
-    block
-        .addContextBlock({
-            elements: [
-                block.newMarkdownTextObject(`${title}${nextRun ? `\n${nextRun}` : ''}\n
+    const block: LayoutBlock[] = [];
+    block.push({
+        type: 'context',
+        elements: [
+            {
+                type: 'mrkdwn',
+                text: `${title}${nextRun ? `\n${nextRun}` : ''}\n
                 **${lang.reminder.jobBlock.message}**\n${job.message}
-                `),
-            ],
-        });
+                `
+            },
+        ],
+    });
 
     // Build buttons
     const buttonPause = job.status === JobStatus.PAUSED
         ? {
+            type: 'button',
             actionId: `job-resume--${job.id}`,
-            text: block.newMarkdownTextObject(lang.reminder.jobBlock.button_resume),
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.jobBlock.button_resume,
+            },
             value: `job-resume--${job.id}`,
         }
         : {
+            type: 'button',
             actionId: `job-pause--${job.id}`,
-            text: block.newMarkdownTextObject(lang.reminder.jobBlock.button_pause),
+            text: {
+                type: 'mrkdwn',
+                text: lang.reminder.jobBlock.button_pause,
+            },
             value: `job-pause--${job.id}`,
-        }
+        };
 
     const buttonCancel = {
+        type: 'button',
         actionId: `job-cancel--${job.id}`,
-        text: block.newMarkdownTextObject(lang.reminder.jobBlock.button_remove),
+        text: {
+            type: 'mrkdwn',
+            text: lang.reminder.jobBlock.button_remove,
+        },
         style: ButtonStyle.DANGER,
         value: `job-cancel--${job.id}`,
-    }
+    };
 
     // Still active
     if (job.status === JobStatus.ACTIVE) {
-        block
-            .addActionsBlock({
-                blockId: `job-actions--active--${job.id}`,
-                elements: [
-                    block.newButtonElement(buttonPause),
-                    block.newButtonElement(buttonCancel),
-                ],
-            });
+        block.push({
+            type: 'actions',
+            blockId: `job-actions--active--${job.id}`,
+            elements: [
+                buttonPause as ButtonElement,
+                buttonCancel as ButtonElement,
+            ],
+        });
     }
 
     // Paused
     if (job.status === JobStatus.PAUSED) {
-        block
-            .addActionsBlock({
-                blockId: `job-actions--paused--${job.id}`,
-                elements: [
-                    block.newButtonElement(buttonPause),
-                    block.newButtonElement(buttonCancel),
-                ],
-            });
+        block.push({
+            type: 'actions',
+            blockId: `job-actions--paused--${job.id}`,
+            elements: [
+                buttonPause as ButtonElement,
+                buttonCancel as ButtonElement,
+            ],
+        });
     }
 
     // Finished
     if (job.status === JobStatus.FINISHED) {
-        block
-            .addActionsBlock({
-                blockId: `job-actions--finished--${job.id}`,
-                elements: [
-                    block.newButtonElement(buttonCancel),
-                ],
-            });
+        block.push({
+            type: 'actions',
+            blockId: `job-actions--finished--${job.id}`,
+            elements: [
+                buttonCancel as ButtonElement,
+            ],
+        });
     }
 
-    block.addDividerBlock();
+    block.push({
+        type: 'divider',
+    });
+
+    return block;
 }
