@@ -29,7 +29,7 @@ export interface IJob {
     message: string;
     createdAt: number; // timestamp
     status: JobStatus;
-    whenDate: string; // dd/mm/yyyy
+    whenDate: string; // yyyy-mm-dd
     whenTime: string; // hh:mm
     lastRunAt?: number; // timestamp
     nextRunAt?: number; // timestamp
