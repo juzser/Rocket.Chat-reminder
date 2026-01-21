@@ -16,6 +16,12 @@ If you need English version, just let me know, I prepared translation feature, s
 - Quote a message in reminder.
 - Easy to use & fully performance optimization.
 
+```bash
+/remind
+/remind create
+/remind list
+```
+
 ## Installation
 
 1. Go to Admin > Settings > General.
@@ -41,7 +47,7 @@ The migration command to migrate if the schedule jobs are missing or the time is
 Only available for admin users.
 
 ```bash
-/cukoo-remind migrate
+/remind migrate
 ```
 
 ## Translation
