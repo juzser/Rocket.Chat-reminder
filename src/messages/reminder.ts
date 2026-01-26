@@ -1,13 +1,19 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessage, IMessageAttachment } from '@rocket.chat/apps-engine/definition/messages';
-import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
+import { IRoom, RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
-import { IJob, JobTargetType, JobType } from '../interfaces/IJob';
+import { IJob, JobTargetType } from '../interfaces/IJob';
 import { Lang } from '../lang/index';
-import { AppConfig } from '../lib/config';
-import { convertTimestampToDate, convertTimestampToTime, formatMsgInAttachment, generateMsgLink, getRoomName, sendMessage, truncate } from '../lib/helpers';
+import {
+    convertTimestampToDate,
+    convertTimestampToTime,
+    formatMsgInAttachment,
+    getRoomName,
+    sendMessage,
+    truncate
+} from '../lib/helpers';
 
 export async function ReminderMessage({ app, owner, jobData, read, modify, room, refMsg }: {
     app: AppClass;
@@ -19,58 +25,64 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
     refMsg?: IMessage;
 }) {
     const { lang } = new Lang(app.appLanguage);
-
     let caption = lang.reminder.message.caption_self;
 
     if (jobData.targetType === JobTargetType.USER) {
         caption = lang.reminder.message.caption_user(owner.username);
-    }
-
-    if (jobData.targetType === JobTargetType.CHANNEL) {
+    } else if (jobData.targetType === JobTargetType.CHANNEL) {
         caption = lang.reminder.message.caption_channel(owner.username);
     }
 
     let refMsgAttachment: IMessageAttachment | null = null;
+    let dynamicLink = '';
+
     if (refMsg) {
-        const msgLink = await generateMsgLink(app, refMsg);
+        const siteUrlSetting = await read.getEnvironmentReader().getServerSettings().getValueById('Site_Url');
+        const siteUrl = (siteUrlSetting || app.siteUrl).replace(/\/$/, '');
+
         const roomName = await getRoomName(read, refMsg.room);
+        let roomPath = 'channel';
+
+        if (refMsg.room.type === RoomType.DIRECT_MESSAGE) {
+            roomPath = 'direct';
+        } else if (refMsg.room.type === RoomType.PRIVATE_GROUP) {
+            roomPath = 'group';
+        }
+
+        dynamicLink = `${siteUrl}/${roomPath}/${refMsg.room.id}?msg=${refMsg.id}`;
+
         const msgDate = refMsg.createdAt ? new Date(refMsg.createdAt).getTime() : '';
-        // hh:mm - dd/mm/yyyy
         const msgDateFormat = msgDate ? `${convertTimestampToTime(msgDate)} - ${convertTimestampToDate(msgDate)}` : '';
         const msgAvatar = refMsg.avatarUrl
-            ? `${app.siteUrl}${refMsg.avatarUrl}`
-            : `${app.siteUrl}/avatar/${refMsg.sender.username}`;
-
-        const msgTextFormat = formatMsgInAttachment(refMsg.text || '');
+            ? `${siteUrl}${refMsg.avatarUrl}`
+            : `${siteUrl}/avatar/${refMsg.sender.username}`;
 
         caption += lang.reminder.message.caption_ref_msg(truncate(roomName, 40));
+
         refMsgAttachment = {
-            color: AppConfig.attachmentColor,
-            text: msgTextFormat,
+            color: '#E03C31',
+            text: formatMsgInAttachment(refMsg.text || ''),
             title: {
-                link: msgLink,
                 value: lang.reminder.message.title_ref_msg(msgDateFormat, roomName),
             },
             author: {
                 name: refMsg.sender.username,
                 icon: msgAvatar,
-                // link: `${app.siteUrl}/direct/${refMsg.sender.username}`,
             },
         };
     }
 
-    caption += ':';
+    const userMessage = jobData.message.startsWith('[Pure]')
+        ? jobData.message.split('[Pure]')[1].trim()
+        : jobData.message;
 
-    caption += `\n\n${jobData.message}`;
+    caption += `\n\n${userMessage}`;
 
-    if (jobData.message.startsWith('[Pure]')) {
-        const pureMsg = jobData.message.split('[Pure]')[1];
-        // Trim msg
-        caption = pureMsg.trim();
+    if (dynamicLink) {
+        caption += `\n\n${dynamicLink}`;
     }
 
-    // Send message to activity room
-    const msg = await sendMessage({
+    return await sendMessage({
         app,
         modify,
         room,
@@ -78,6 +90,4 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         attachments: refMsgAttachment ? [refMsgAttachment] : [],
         group: true,
     });
-
-    return msg;
 }
