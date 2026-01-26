@@ -6,6 +6,7 @@ import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { OeReminderApp as AppClass } from '../../OeReminderApp';
 import { IJob, JobTargetType } from '../interfaces/IJob';
 import { Lang } from '../lang/index';
+import { AppConfig } from '../lib/config';
 import {
     convertTimestampToDate,
     convertTimestampToTime,
@@ -60,7 +61,7 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         caption += lang.reminder.message.caption_ref_msg(truncate(roomName, 40));
 
         refMsgAttachment = {
-            color: '#E03C31',
+            color: AppConfig.attachmentColor,
             text: formatMsgInAttachment(refMsg.text || ''),
             title: {
                 value: lang.reminder.message.title_ref_msg(msgDateFormat, roomName),
@@ -82,6 +83,7 @@ export async function ReminderMessage({ app, owner, jobData, read, modify, room,
         caption += `\n\n${dynamicLink}`;
     }
 
+    // Send message to activity room
     return await sendMessage({
         app,
         modify,
