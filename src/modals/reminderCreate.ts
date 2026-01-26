@@ -25,9 +25,13 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
 
     const userTzOffset = user.utcOffset * 60 * 60 * 1000;
 
-    const today = new Date().getTime() + userTzOffset;
-    const todayFormated = convertTimestampToDate(today);
-    const currentHour = new Date(today + 60 * 60 * 1000).getHours();
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayFormatted = `${yyyy}-${mm}-${dd}`;
+
+    const currentHour = new Date(today.getTime() + userTzOffset + 60 * 60 * 1000).getHours();
     const hours = currentHour < 10 ? `0${currentHour}` : currentHour;
 
     const repeatOptions: Option[] = [
@@ -146,6 +150,7 @@ export async function reminderCreate({ app, room, user, read, modify, targetType
                 type: 'plain_text',
                 text: 'yyyy-mm-dd',
             },
+            initialDate: todayFormatted,
         }
     }, {
         type: 'input',
