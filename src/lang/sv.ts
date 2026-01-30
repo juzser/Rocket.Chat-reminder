@@ -75,7 +75,7 @@ export const sv = {
             caption_self: ':rotating_light: Du bad mig påminna dig',
             caption_user: (owner: string) => `:rotating_light: @${owner} bad mig påminna dig`,
             caption_channel: (owner: string) => `:rotating_light: @${owner} bad mig påminna denna kanal`,
-            caption_ref_msg: (msgLink: string, channel?: string) => ` om meddelandet${channel ? ` från #${channel}` : ''}`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` om [meddelandet](${msgLink})${channel ? ` från #${channel}` : ''}`,
             title_ref_msg: (time: string, channel?: string) => `Meddelande${channel ? ` i #${channel}` : ''} skickat kl. ${time}`,
         },
 
