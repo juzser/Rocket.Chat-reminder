@@ -75,7 +75,7 @@ export const de = {
             caption_self: ':rotating_light: Ich soll dich erinnern',
             caption_user: (owner: string) => `:rotating_light: @${owner} hat mich beauftragt dich zu erinnern`,
             caption_channel: (owner: string) => `:rotating_light: @${owner} hat mich beauftragt diesen Kanal zu erinnern`,
-            caption_ref_msg: (msgLink: string, channel?: string) => ` bzgl. der Nachricht ${channel ? ` von #${channel}` : ''}`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` bzgl. der [Nachricht](${msgLink})${channel ? ` von #${channel}` : ''}`,
             title_ref_msg: (time: string, channel?: string) => `Nachricht${channel ? ` in #${channel}` : ''} erstellt um ${time}`,
         },
 
