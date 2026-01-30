@@ -75,7 +75,7 @@ export const br = {
             caption_self: ':rotating_light: Você pediu para eu te lembrar',
             caption_user: (owner: string) => `:rotating_light: @${owner} pediu para eu te lembrar`,
             caption_channel: (owner: string) => `:rotating_light: @${owner} pediu para eu avisar esse canal`,
-            caption_ref_msg: (msgLink: string, channel?: string) => ` sobre a mensagem${channel ? ` do #${channel}` : ''}`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` sobre a [mensagem](${msgLink})${channel ? ` do #${channel}` : ''}`,
             title_ref_msg: (time: string, channel?: string) => `Mensagem${channel ? ` no #${channel}` : ''} enviada em ${time}`,
         },
 

@@ -75,7 +75,7 @@ export const fr = {
             caption_self: ':rotating_light: Vous avez demandé un rappel',
             caption_user: (owner: string) => `:rotating_light: @${owner} a demandé de vous rappeler`,
             caption_channel: (owner: string) => `:rotating_light: @${owner} a demandé un rappel pour ce canal`,
-            caption_ref_msg: (msgLink: string, channel?: string) => ` à propos du message${channel ? ` de #${channel}` : ''}`,
+            caption_ref_msg: (msgLink: string, channel?: string) => ` à propos du [message](${msgLink})${channel ? ` de #${channel}` : ''}`,
             title_ref_msg: (time: string, channel?: string) => `Message${channel ? ` dans #${channel}` : ''} envoyé à ${time}`,
         },
 
